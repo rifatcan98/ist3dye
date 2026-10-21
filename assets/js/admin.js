@@ -17,7 +17,7 @@ const DEFAULT_MATERIALS = [
   { id: 'pla', name: 'PLA Standart', rate: 1.0, desc: 'Ekonomik & Çevre Dostu - Dekoratif ve Prototip' },
   { id: 'petg', name: 'PETG Dayanıklı', rate: 1.25, desc: 'Yüksek Mukavemet & Kimyasal ve Dış Ortam Direnci' },
   { id: 'abs', name: 'ABS Endüstriyel', rate: 1.35, desc: 'Sıcaklığa ve Darbeye Dirençli Fonksiyonel Parça' },
-  { id: 'resin', name: 'SLA 8K Reçine', rate: 1.85, desc: 'Ultra Pürüzsüz & Mikron Hassasiyetli Figür/Kalıp' },
+  { id: 'asa', name: 'ASA Filament', rate: 1.40, desc: 'UV & Dış Hava Şartlarına Ultra Dayanıklı Endüstriyel' },
   { id: 'tpu', name: 'TPU Esnek', rate: 1.60, desc: 'Kauçuk benzeri, bükülebilir ve kırılmaz esnek parça' }
 ];
 
@@ -32,11 +32,11 @@ const DEFAULT_GALLERY = [
   },
   {
     id: 2,
-    title: 'Mikron Detaylı Karakter Heykeli',
+    title: 'Yüksek Çözünürlüklü Karakter Modeli',
     category: 'figur',
-    material: '8K SLA Reçine',
-    specs: 'Baskı Süresi: 8.5 Saat | Katman: 0.05 mm',
-    desc: 'Boyama ve sergileme için pürüzsüz yüzeyli, katman çizgisi olmayan 8K reçine baskı.'
+    material: 'Hassas PLA+',
+    specs: 'Baskı Süresi: 9 Saat | Katman: 0.12 mm',
+    desc: 'Özel destek yapıları ve 0.12mm ince katman yüksekliği ile hassas FDM yüzey kalitesi.'
   },
   {
     id: 3,
