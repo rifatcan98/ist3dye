@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ist3Dye Yönetim Paneli</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              accent: '#06b6d4',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+  <!-- ================= 1. LOGIN SCREEN ================= -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur relative overflow-hidden">
+      <!-- Glow -->
+      <div class="absolute -top-12 -right-12 w-36 h-36 bg-brand-500/20 rounded-full blur-2xl pointer-events-none"></div>
+      
+      <div class="text-center space-y-3 mb-8">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-accent p-0.5 shadow-lg shadow-brand-500/30">
+          <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-7 h-7 text-brand-accent"></i>
+          </div>
+        </div>
+        <h1 class="text-2xl font-display font-bold text-white">ist3Dye Yönetici Girişi</h1>
+        <p class="text-xs text-slate-400">Fiyatları, malzemeleri ve vitrin baskılarını buradan yönetebilirsiniz.</p>
+      </div>
+
+      <form id="adminLoginForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Yönetici Şifresi</label>
+          <div class="relative">
+            <input type="password" id="adminPasswordInput" placeholder="Şifrenizi girin..." required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 pr-10">
+            <button type="button" id="togglePasswordVisibility" class="absolute right-3 top-3.5 text-slate-400 hover:text-white">
+              <i data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Panele Giriş Yap</span>
+        </button>
+
+        <p id="loginError" class="hidden text-xs text-center text-red-400 font-medium"></p>
+        
+        <div class="pt-4 text-center border-t border-slate-800">
+          <a href="index.html" class="text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Siteye Geri Dön</span>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 2. DASHBOARD MAIN ================= -->
+  <div id="adminDashboard" class="hidden min-h-screen flex flex-col">
+    
+    <!-- Top Bar -->
+    <header class="bg-slate-900/80 border-b border-slate-800 backdrop-blur sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <span class="font-display font-bold text-lg text-white">ist3Dye <span class="text-xs px-2 py-0.5 rounded bg-brand-500/20 text-brand-400 font-mono">Yönetim</span></span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <a href="index.html" target="_blank" class="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>Canlı Siteyi Gör</span>
+          </a>
+          <button id="logoutBtn" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            <span>Çıkış Yap</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+      
+      <!-- Nav Tabs -->
+      <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-4">
+        <button class="tab-btn active px-4 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 text-white flex items-center gap-2" data-tab="fiyatlar">
+          <i data-lucide="badge-percent" class="w-4 h-4"></i>
+          <span>Fiyatlandırma Ayarları</span>
+        </button>
+        <button class="tab-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 flex items-center gap-2" data-tab="malzemeler">
+          <i data-lucide="box" class="w-4 h-4"></i>
+          <span>Filament & Malzemeler</span>
+        </button>
+        <button class="tab-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 flex items-center gap-2" data-tab="galeri">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span>Örnek Baskılar (Galeri)</span>
+        </button>
+        <button class="tab-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 flex items-center gap-2" data-tab="ayarlar">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span>Genel Bilgiler & Şifre</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: FİYATLAR -->
+      <section id="tab-fiyatlar" class="tab-content space-y-6">
+        <div class="bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+          <div>
+            <h2 class="text-xl font-display font-bold text-white">Canlı Fiyat Hesaplama Formülü</h2>
+            <p class="text-xs text-slate-400">Müşterilerin 3D model yüklediğinde göreceği fiyatın hesaplanma parametreleri.</p>
+          </div>
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">Sabit Kurulum / Dilimleme Bedeli (₺)</label>
+              <input type="number" id="cfgBaseSetupFee" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500 block">Her baskıya eklenen başlangıç makine hazırlık tutarı.</span>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">Gram Başına Baz Ücret (₺/gram)</label>
+              <input type="number" step="0.1" id="cfgBaseGramPrice" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500 block">PLA için 1 gram plastiğin birim ücreti.</span>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">Minimum Sipariş Taban Fiyatı (₺)</label>
+              <input type="number" id="cfgMinOrderPrice" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500 block">Bir parçanın inebileceği en düşük taban fiyat.</span>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">5+ Adet İndirimi (%)</label>
+              <input type="number" id="cfgDiscount5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500 block">5 ve üzeri siparişlerde uygulanacak indirim yüzdesi.</span>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">10+ Adet İndirimi (%)</label>
+              <input type="number" id="cfgDiscount10" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500 block">10 ve üzeri siparişlerde uygulanacak indirim yüzdesi.</span>
+            </div>
+
+          </div>
+
+          <div class="pt-4 flex items-center justify-between border-t border-slate-800">
+            <button id="savePricingBtn" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-brand-600/30 transition-all">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Fiyat Ayarlarını Kaydet</span>
+            </button>
+            <span id="pricingSaveNotice" class="text-xs text-emerald-400 hidden">✓ Fiyatlar başarıyla kaydedildi ve canlı siteye aktarıldı!</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: MALZEMELER -->
+      <section id="tab-malzemeler" class="tab-content hidden space-y-6">
+        <div class="bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-display font-bold text-white">Filament & Malzeme Listesi</h2>
+              <p class="text-xs text-slate-400">Sitedeki malzeme seçimi kutusunda görünen seçenekler ve fiyat çarpanları.</p>
+            </div>
+            <button id="openNewMaterialModalBtn" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center gap-2 self-start sm:self-auto">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Yeni Malzeme Ekle</span>
+            </button>
+          </div>
+
+          <!-- Materials Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+                <tr>
+                  <th class="px-4 py-3">Malzeme Adı</th>
+                  <th class="px-4 py-3">Fiyat Çarpanı</th>
+                  <th class="px-4 py-3">Açıklama / Kullanım Alanı</th>
+                  <th class="px-4 py-3 text-right">İşlem</th>
+                </tr>
+              </thead>
+              <tbody id="materialsTableBody" class="divide-y divide-slate-800">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: GALERİ & BASKI ÖRNEKLERİ -->
+      <section id="tab-galeri" class="tab-content hidden space-y-6">
+        <div class="bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-display font-bold text-white">Baskı Galerisi & Portfolyo Yönetimi</h2>
+              <p class="text-xs text-slate-400">Ana sayfada vitrine koyduğunuz örnek ürünler ve başarı hikayeleri.</p>
+            </div>
+            <button id="openNewGalleryModalBtn" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center gap-2 self-start sm:self-auto">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Yeni Baskı Ekle</span>
+            </button>
+          </div>
+
+          <!-- Gallery List Grid -->
+          <div id="adminGalleryList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 4: GENEL AYARLAR & ŞİFRE -->
+      <section id="tab-ayarlar" class="tab-content hidden space-y-6">
+        <div class="bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+          <div>
+            <h2 class="text-xl font-display font-bold text-white">İletişim Bilgileri & Güvenlik</h2>
+            <p class="text-xs text-slate-400">Sitede görünen telefon, adres ve yönetim paneli giriş şifresi.</p>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">WhatsApp Numarası (Ülke kodu ile, başında 90)</label>
+              <input type="text" id="cfgWhatsappPhone" placeholder="905000000000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="space-y-2">
+              <label class="block text-xs font-semibold text-slate-300">İletişim E-Posta Adresi</label>
+              <input type="email" id="cfgContactEmail" placeholder="teklif@ist3dye.com" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="space-y-2 sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-300">Atölye Adresi Metni</label>
+              <input type="text" id="cfgWorkshopAddress" placeholder="İstanbul / Bahçelievler, Türkiye" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="space-y-2 sm:col-span-2 pt-4 border-t border-slate-800">
+              <label class="block text-xs font-semibold text-slate-300">Yeni Yönetici Şifresi</label>
+              <input type="password" id="cfgNewAdminPassword" placeholder="Şifrenizi değiştirmek için yeni şifre yazın..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500">Boş bırakırsanız mevcut şifreniz değişmez.</span>
+            </div>
+          </div>
+
+          <div class="pt-4 flex items-center justify-between border-t border-slate-800">
+            <button id="saveGeneralSettingsBtn" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-brand-600/30 transition-all">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Bilgileri Güncelle</span>
+            </button>
+            <span id="generalSaveNotice" class="text-xs text-emerald-400 hidden">✓ Ayarlar güncellendi!</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= MODAL: YENİ MALZEME EKLE ================= -->
+  <div id="materialModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white">Yeni Filament / Malzeme Ekle</h3>
+        <button class="closeModalBtn text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Malzeme Kodu / Adı (Örn: Carbon Fiber, ASA, PVA)</label>
+          <input type="text" id="newMatName" placeholder="Örn: ASA Filament" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Fiyat Çarpanı (PLA = 1.0 iken bu kaç katı? Örn: 1.45)</label>
+          <input type="number" step="0.05" id="newMatRate" value="1.30" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Kısa Açıklama / Özellik</label>
+          <input type="text" id="newMatDesc" placeholder="Örn: UV ve Dış Hava Şartlarına Karşı Dayanıklı" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button class="closeModalBtn px-4 py-2 rounded-xl bg-slate-800 text-xs text-slate-300">İptal</button>
+        <button id="saveNewMaterialBtn" class="px-4 py-2 rounded-xl bg-brand-600 text-xs font-semibold text-white">Malzemeyi Ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: YENİ BASKI EKLE ================= -->
+  <div id="galleryModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white">Yeni Galeri / Baskı Örneği Ekle</h3>
+        <button class="closeModalBtn text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Parça / Baskı Başlığı</label>
+          <input type="text" id="newGalTitle" placeholder="Örn: Karbon Drone Gövdesi" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Kategori</label>
+          <select id="newGalCategory" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+            <option value="muhendislik">Mühendislik & Yedek Parça</option>
+            <option value="figur">Figür & Sanat</option>
+            <option value="mimari">Mimari Maket</option>
+            <option value="prototip">Endüstriyel Prototip</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Malzeme Etiketi</label>
+          <input type="text" id="newGalMaterial" placeholder="Örn: PETG-CF - %40 Infill" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Baskı Süresi & Katman</label>
+          <input type="text" id="newGalSpecs" placeholder="Örn: Süre: 4 Saat | Katman: 0.20 mm" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Açıklama</label>
+          <textarea id="newGalDesc" rows="2" placeholder="Parçanın kullanım amacı veya detayları..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white"></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button class="closeModalBtn px-4 py-2 rounded-xl bg-slate-800 text-xs text-slate-300">İptal</button>
+        <button id="saveNewGalleryBtn" class="px-4 py-2 rounded-xl bg-brand-600 text-xs font-semibold text-white">Galeriye Ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/admin.js"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

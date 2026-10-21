@@ -2,6 +2,23 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ================= DYNAMIC CONFIG & STORAGE =================
+  const DEFAULT_CONFIG = {
+    baseSetupFee: 35,
+    baseGramPrice: 2.4,
+    minOrderPrice: 65,
+    discount5: 10,
+    discount10: 15,
+    whatsappPhone: '905000000000',
+    contactEmail: 'teklif@ist3dye.com',
+    workshopAddress: 'İstanbul / Bahçelievler, Türkiye'
+  };
+
+  function getSiteConfig() {
+    const saved = localStorage.getItem('ist3dye_config');
+    return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : DEFAULT_CONFIG;
+  }
+
   // ================= STATE & CONFIG =================
   let currentModel = {
     name: 'Örnek Parça',
@@ -35,13 +52,72 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
 
-  // WhatsApp Phone Number (Can be updated easily)
-  const WHATSAPP_PHONE = '905000000000';
+  // Load Custom Materials from Admin if configured
+  function populateMaterialsFromStorage() {
+    const saved = localStorage.getItem('ist3dye_materials');
+    if (!saved) return;
+    try {
+      const mats = JSON.parse(saved);
+      if (mats && mats.length > 0) {
+        materialSelect.innerHTML = '';
+        mats.forEach((m, idx) => {
+          const opt = document.createElement('option');
+          opt.value = m.id || m.name.toLowerCase();
+          opt.setAttribute('data-rate', m.rate);
+          opt.textContent = `${m.name} (${m.desc})`;
+          if (idx === 0) opt.selected = true;
+          materialSelect.appendChild(opt);
+        });
+      }
+    } catch (e) {
+      console.error('Malzemeler okunamadı:', e);
+    }
+  }
+
+  // Load Custom Gallery Items from Admin if configured
+  function populateGalleryFromStorage() {
+    const saved = localStorage.getItem('ist3dye_gallery');
+    if (!saved) return;
+    try {
+      const items = JSON.parse(saved);
+      const grid = document.getElementById('galleryGrid');
+      if (grid && items && items.length > 0) {
+        grid.innerHTML = '';
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300';
+          div.setAttribute('data-category', item.category);
+          div.innerHTML = `
+            <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+              <i data-lucide="box" class="w-24 h-24 text-brand-500/80 group-hover:scale-110 transition-transform duration-500"></i>
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700 capitalize">${item.category}</span>
+              <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">${item.material}</span>
+            </div>
+            <div class="p-6 space-y-2">
+              <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">${item.title}</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">${item.desc}</p>
+              <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+                <span>${item.specs}</span>
+              </div>
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+        lucide.createIcons();
+      }
+    } catch (e) {
+      console.error('Galeri okunamadı:', e);
+    }
+  }
+
+  populateMaterialsFromStorage();
+  populateGalleryFromStorage();
 
   // ================= PRICE CALCULATION =================
   function calculatePrice() {
-    const baseSetupFee = 35; // Sabit makine hazırlık ve dilimleme bedeli (TL)
-    const baseGramPrice = 2.4; // TL per gram (PLA için baz)
+    const cfg = getSiteConfig();
+    const baseSetupFee = cfg.baseSetupFee || 35; // Sabit makine hazırlık bedeli
+    const baseGramPrice = cfg.baseGramPrice || 2.4; // TL per gram
     
     // Malzeme katsayısı
     const selectedOption = materialSelect.options[materialSelect.selectedIndex];
@@ -54,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (selectedInfill === 40) infillMultiplier = 1.35;
     else if (selectedInfill === 100) infillMultiplier = 2.3;
 
-    // Katman kalitesi katsayısı (Düşük mikron = daha uzun baskı süresi)
+    // Katman kalitesi katsayısı
     const qualityVal = parseFloat(qualitySelect.value || 0.20);
     let qualityMultiplier = 1.0;
     if (qualityVal === 0.28) qualityMultiplier = 0.85;
@@ -64,17 +140,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Adet
     const qty = Math.max(1, parseInt(qtyInput.value) || 1);
 
-    // Tahmini gramaj (Hacim cm3 * doluluk faktörü * plastik yoğunluğu 1.25)
+    // Tahmini gramaj
     const estimatedGrams = Math.max(10, currentModel.volumeCm3 * (0.3 + (selectedInfill / 100) * 0.7) * 1.25);
     
     // Birim Fiyat
     let unitPrice = baseSetupFee + (estimatedGrams * baseGramPrice * materialMultiplier * qualityMultiplier * infillMultiplier);
-    unitPrice = Math.max(65, Math.round(unitPrice));
+    unitPrice = Math.max(cfg.minOrderPrice || 65, Math.round(unitPrice));
 
-    // Toplam Fiyat (Adet indirimi: 5+ adette %10, 10+ adette %15 indirim)
+    // Adet İndirimi
     let discount = 1.0;
-    if (qty >= 10) discount = 0.85;
-    else if (qty >= 5) discount = 0.90;
+    if (qty >= 10) discount = (100 - (cfg.discount10 || 15)) / 100;
+    else if (qty >= 5) discount = (100 - (cfg.discount5 || 10)) / 100;
 
     const totalPrice = Math.round(unitPrice * qty * discount);
 
@@ -249,8 +325,9 @@ document.addEventListener('DOMContentLoaded', () => {
 ---------------------------------------
 Merhaba, yukarıdaki parametrelerde 3D baskı yaptırmak ve kesin teklif almak istiyorum. Dosyamı göndermek üzere bilgi verir misiniz?`;
 
+    const cfg = getSiteConfig();
     const encoded = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encoded}`;
+    const whatsappUrl = `https://wa.me/${cfg.whatsappPhone || '905000000000'}?text=${encoded}`;
     window.open(whatsappUrl, '_blank');
   });
 
