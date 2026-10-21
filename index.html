@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ist3Dye | Profesyonel 3D Baskı ve Hızlı Fiyat Teklifi</title>
+  <meta name="description" content="3D baskı ihtiyaçlarınız için modelinizi yükleyin, anında teklif alın. Mühendislik parçalarından figürlere profesyonel FDM ve SLA 3D baskı hizmeti.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232563eb'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+  
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN with configuration -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#0f172a',
+              accent: '#06b6d4',
+              orange: '#f97316',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Three.js and STLLoader for browser-based 3D STL viewing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-brand-accent p-0.5 shadow-lg shadow-brand-500/25 group-hover:scale-105 transition-transform duration-300">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="layers" class="w-6 h-6 text-brand-accent group-hover:rotate-12 transition-transform duration-300"></i>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display font-bold text-2xl tracking-tight text-white flex items-center">
+            ist<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-brand-accent">3D</span>ye
+            <span class="text-xs ml-1 px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20">.com</span>
+          </span>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-medium">3D Baskı & Prototipleme</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#nasil-calisir" class="hover:text-brand-400 transition-colors">Nasıl Çalışır?</a>
+        <a href="#teklif-al" class="hover:text-brand-400 transition-colors flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+          Fiyat Hesapla
+        </a>
+        <a href="#galeri" class="hover:text-brand-400 transition-colors">Baskı Galerisi</a>
+        <a href="#malzemeler" class="hover:text-brand-400 transition-colors">Malzemeler</a>
+        <a href="#sss" class="hover:text-brand-400 transition-colors">SSS</a>
+        <a href="#iletisim" class="hover:text-brand-400 transition-colors">İletişim</a>
+      </nav>
+
+      <!-- CTA Buttons -->
+      <div class="hidden sm:flex items-center gap-3">
+        <a href="https://wa.me/905000000000?text=Merhaba,%203D%20bask%C4%B1%20hakk%C4%B1nda%20bilgi%20ve%20teklif%20almak%20istiyorum." 
+           target="_blank" 
+           class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all duration-200">
+          <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
+          <span>WhatsApp</span>
+        </a>
+        <a href="#teklif-al" 
+           class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-accent rounded-xl shadow-lg shadow-brand-600/30 hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all duration-200">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>Hemen Teklif Al</span>
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobileMenuBtn" class="md:hidden p-2 text-slate-400 hover:text-white focus:outline-none">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Nav Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
+      <a href="#nasil-calisir" class="block py-2 text-slate-300 hover:text-brand-400">Nasıl Çalışır?</a>
+      <a href="#teklif-al" class="block py-2 text-slate-300 hover:text-brand-400">Fiyat Hesapla & Teklif Al</a>
+      <a href="#galeri" class="block py-2 text-slate-300 hover:text-brand-400">Baskı Galerisi</a>
+      <a href="#malzemeler" class="block py-2 text-slate-300 hover:text-brand-400">Malzeme Rehberi</a>
+      <a href="#sss" class="block py-2 text-slate-300 hover:text-brand-400">Sıkça Sorulan Sorular</a>
+      <a href="#iletisim" class="block py-2 text-slate-300 hover:text-brand-400">İletişim</a>
+      <div class="pt-2 flex flex-col gap-2">
+        <a href="#teklif-al" class="w-full text-center py-2.5 rounded-xl bg-brand-600 font-semibold text-white">Model Yükle & Teklif Al</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO SECTION ================= -->
+  <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+    <!-- Background Glows -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-600/15 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="absolute top-1/3 right-10 w-[400px] h-[400px] bg-brand-accent/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left Content -->
+        <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+          
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-xs text-slate-300 shadow-inner">
+            <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-emerald-400 font-semibold">İstanbul Atölyemizden</span>
+            <span class="text-slate-500">•</span>
+            <span>Tüm Türkiye'ye Hızlı Kargo</span>
+          </div>
+
+          <!-- Main Headline -->
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold tracking-tight leading-[1.15]">
+            Hayal Ettiğiniz Modeli <br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-brand-500 to-brand-accent">
+              3D Baskıyla Gerçeğe
+            </span> Dönüştürün.
+          </h1>
+
+          <!-- Subtitle -->
+          <p class="text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+            Mühendislik parçalarından endüstriyel prototiplere, mimari maketlerden özel figürlere kadar yüksek hassasiyetli 3D baskı hizmeti. Modelinizi yükleyin, anında tahmini fiyat teklifi alın.
+          </p>
+
+          <!-- Buttons -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <a href="#teklif-al" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-brand-accent hover:opacity-95 font-semibold text-white shadow-xl shadow-brand-600/30 hover:-translate-y-0.5 transition-all text-base">
+              <i data-lucide="box" class="w-5 h-5"></i>
+              <span>3D Modelini Yükle & Hesapla</span>
+            </a>
+            <a href="#galeri" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold transition-all text-base">
+              <i data-lucide="eye" class="w-5 h-5 text-slate-400"></i>
+              <span>Önceki Baskılarımızı İncele</span>
+            </a>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800/80">
+            <div>
+              <p class="text-2xl font-display font-bold text-white">500+</p>
+              <p class="text-xs text-slate-400">Tamamlanan Baskı</p>
+            </div>
+            <div>
+              <p class="text-2xl font-display font-bold text-brand-400">±0.1 mm</p>
+              <p class="text-xs text-slate-400">Hassas Boyutlama</p>
+            </div>
+            <div>
+              <p class="text-2xl font-display font-bold text-emerald-400">24-48s</p>
+              <p class="text-xs text-slate-400">Hızlı Teslimat</p>
+            </div>
+            <div>
+              <p class="text-2xl font-display font-bold text-orange-400">5+ Çeşit</p>
+              <p class="text-xs text-slate-400">Mühendislik Malzemesi</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Visual Card -->
+        <div class="lg:col-span-5 relative">
+          <div class="relative mx-auto max-w-md lg:max-w-none rounded-3xl bg-gradient-to-b from-slate-800/80 via-slate-900/90 to-slate-950 p-6 border border-slate-700/60 shadow-2xl backdrop-blur-xl">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                <span class="text-xs font-mono text-slate-400 ml-2">ist3dye_live_printer.stl</span>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-medium">Baskıya Hazır</span>
+            </div>
+
+            <!-- Visual Simulated 3D Printer & Product -->
+            <div class="relative my-6 h-64 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center group">
+              <!-- Grid Background -->
+              <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:24px_24px] opacity-40"></div>
+              
+              <!-- 3D Print Animated Icon / Hologram -->
+              <div class="relative z-10 text-center space-y-3">
+                <div class="w-24 h-24 mx-auto rounded-2xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400 shadow-2xl shadow-brand-500/30 animate-pulse">
+                  <i data-lucide="box" class="w-12 h-12"></i>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-sm font-semibold text-white">Canlı 3D STL Önizleyici</p>
+                  <p class="text-xs text-slate-400">Aşağıdaki bölümden dosyanızı sürükleyin</p>
+                </div>
+              </div>
+
+              <!-- Floating Tooltip -->
+              <div class="absolute bottom-3 left-3 bg-slate-900/90 border border-slate-700 rounded-lg px-2.5 py-1 text-[11px] text-slate-300 flex items-center gap-2 shadow">
+                <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Desteklenen: .STL, .OBJ, .STEP, .3MF</span>
+              </div>
+            </div>
+
+            <!-- Mini Spec bar -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">Katman</span>
+                <span class="font-semibold text-slate-200">0.12 - 0.28 mm</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">Baskı Alanı</span>
+                <span class="font-semibold text-slate-200">300x300x400 mm</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">Teknoloji</span>
+                <span class="font-semibold text-slate-200">FDM & SLA</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NASIL ÇALIŞIR? ================= -->
+  <section id="nasil-calisir" class="py-20 bg-slate-900/50 border-y border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <h2 class="text-xs uppercase tracking-widest font-bold text-brand-400">Süreç Nasıl İlerliyor?</h2>
+        <h3 class="text-3xl sm:text-4xl font-display font-bold text-white">4 Adımda Baskınız Kapınızda</h3>
+        <p class="text-slate-400 text-sm sm:text-base">Karmaşık süreçlerle uğraşmayın. Modelinizi gönderin, gerisini profesyonel atölyemize bırakın.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        
+        <!-- Step 1 -->
+        <div class="relative bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-brand-500/50 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-lg mb-5 group-hover:scale-110 transition-transform">
+            01
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">Modelini Yükle</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Bilgisayarınızdaki .STL, .OBJ veya teknik çizim dosyanızı web sitemizdeki forma bırakın. Modeliniz yoksa WhatsApp'tan tarif edin.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-brand-500/50 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-brand-accent/10 border border-brand-accent/20 text-brand-accent flex items-center justify-center font-bold text-lg mb-5 group-hover:scale-110 transition-transform">
+            02
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">Seçimlerini Yap</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Parçanızın dayanıklılığına göre malzeme (PLA, PETG, Reçine vb.), doluluk oranı, renk ve adet tercihlerinizi belirleyin.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-brand-500/50 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg mb-5 group-hover:scale-110 transition-transform">
+            03
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">Teklifi Onayla</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Otomatik tahmini fiyatı görün. Teknik ekibimiz dilimleme ayarlarını kontrol edip en uygun kesin teklifi hızla size sunsun.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="relative bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-brand-500/50 transition-all duration-300 group">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-lg mb-5 group-hover:scale-110 transition-transform">
+            04
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">Baskı & Hızlı Kargo</h4>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Kalite kontrol testlerinden geçirilen parçalarınız darbeye dayanıklı şekilde paketlenip 24-48 saat içinde kargoya verilir.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= INTERAKTIF 3D TEKLIF & HESAPLAMA BÖLÜMÜ ================= -->
+  <section id="teklif-al" class="py-24 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold uppercase tracking-wider">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+          Akıllı Fiyat Hesaplayıcı & 3D Önizleme
+        </span>
+        <h2 class="text-3xl sm:text-5xl font-display font-extrabold text-white">
+          3D Modelinizi Yükleyin & Fiyatınızı Öğrenin
+        </h2>
+        <p class="text-slate-400 text-base">
+          Dosyanızı aşağıdaki alana bırakın. 3D önizleyicide inceleyin, malzeme ve parametreleri seçerek anında tahmini fiyat alın.
+        </p>
+      </div>
+
+      <!-- Main Calculator & Upload Container -->
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Upload Zone & 3D Viewer (7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- Dropzone Container -->
+          <div id="dropZone" class="relative group border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-3xl p-8 bg-slate-900/60 hover:bg-slate-900 transition-all duration-300 text-center cursor-pointer">
+            <input type="file" id="fileInput" accept=".stl,.obj,.step,.stp,.3mf" class="hidden">
+            
+            <div class="space-y-4">
+              <div class="w-16 h-16 mx-auto rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+              </div>
+              <div class="space-y-1">
+                <p class="text-lg font-bold text-white">
+                  3D Dosyanızı Buraya Sürükleyip Bırakın
+                </p>
+                <p class="text-sm text-slate-400">
+                  veya dosya seçmek için <span class="text-brand-400 underline font-medium">tıklayın</span>
+                </p>
+              </div>
+              <p class="text-xs text-slate-500">
+                Desteklenen formatlar: <strong class="text-slate-300">.STL, .OBJ, .STEP, .3MF</strong> (Maks. 50 MB)
+              </p>
+            </div>
+
+            <!-- Demo Model Load Button -->
+            <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-center gap-3">
+              <span class="text-xs text-slate-400">Dosyanız yok mu?</span>
+              <button type="button" id="loadDemoBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-brand-300 border border-slate-700 transition-colors flex items-center gap-1.5">
+                <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+                Örnek 3D Parça Yükle & Test Et
+              </button>
+            </div>
+          </div>
+
+          <!-- 3D Interactive Viewer Canvas Card -->
+          <div id="viewerContainer" class="relative rounded-3xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-2xl">
+            
+            <!-- Canvas Header Toolbar -->
+            <div class="px-4 py-3 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="cube" class="w-4 h-4 text-brand-400"></i>
+                <span id="loadedFileName" class="text-xs font-semibold text-slate-200 truncate max-w-[200px]">3D Model Önizleyici</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <button id="resetCameraBtn" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] flex items-center gap-1">
+                  <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Sıfırla
+                </button>
+                <button id="wireframeToggleBtn" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]">
+                  Kafes Modu
+                </button>
+              </div>
+            </div>
+
+            <!-- WebGL Canvas Box -->
+            <div id="canvasBox" class="w-full h-80 sm:h-96 bg-gradient-to-b from-slate-950 to-slate-900 relative">
+              <div id="viewerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 space-y-2 p-6 text-center">
+                <i data-lucide="eye" class="w-10 h-10 stroke-1 text-slate-600"></i>
+                <p class="text-sm font-medium text-slate-400">Henüz bir 3D model yüklenmedi</p>
+                <p class="text-xs text-slate-500">Yukarıdaki butondan dosya yükleyebilir veya örnek modeli deneyebilirsiniz.</p>
+              </div>
+            </div>
+
+            <!-- Model Info Footer -->
+            <div id="modelSpecsBar" class="hidden px-4 py-3 bg-slate-950/90 border-t border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+              <div>
+                <span class="text-slate-500 text-[10px] block">Boyutlar (G x D x Y)</span>
+                <span id="modelDimensions" class="font-semibold text-slate-200">-- mm</span>
+              </div>
+              <div>
+                <span class="text-slate-500 text-[10px] block">Tahmini Hacim</span>
+                <span id="modelVolume" class="font-semibold text-brand-400">-- cm³</span>
+              </div>
+              <div>
+                <span class="text-slate-500 text-[10px] block">Yüzey Sayısı</span>
+                <span id="modelTriangles" class="font-semibold text-slate-200">--</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Right: Options & Instant Quote Form (5 Cols) -->
+        <div class="lg:col-span-5">
+          <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl backdrop-blur space-y-6">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+              <h3 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                <i data-lucide="sliders" class="w-5 h-5 text-brand-400"></i>
+                Baskı Parametreleri
+              </h3>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 font-mono">ist3Dye Pro</span>
+            </div>
+
+            <form id="quoteForm" class="space-y-5">
+              
+              <!-- 1. Teknoloji & Malzeme -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                  1. Baskı Malzemesi
+                </label>
+                <select id="materialSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors">
+                  <option value="pla" data-rate="1.0" selected>PLA (Standart & En Ekonomik - Dekoratif & Prototip)</option>
+                  <option value="petg" data-rate="1.25">PETG (Yüksek Dayanıklılık & Dış Ortam Direnci)</option>
+                  <option value="abs" data-rate="1.35">ABS (Sıcaklığa & Darbeye Dayanıklı Mühendislik)</option>
+                  <option value="resin" data-rate="1.85">SLA Reçine (Ultra Pürüzsüz & Mikron Hassasiyetli)</option>
+                  <option value="tpu" data-rate="1.60">TPU Esnek (Kauçuk benzeri, Bükülebilir)</option>
+                </select>
+              </div>
+
+              <!-- 2. Doluluk Oranı (Infill) -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    2. İç Doluluk Oranı (Infill)
+                  </label>
+                  <span id="infillLabel" class="text-xs font-bold text-brand-400">%20 (Standart Parça)</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2">
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-brand-500 transition-all text-slate-300" data-infill="15">
+                    %15 <span class="block text-[10px] text-slate-500">Hafif</span>
+                  </button>
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border-2 border-brand-500 bg-brand-500/10 text-xs font-bold text-white transition-all" data-infill="20">
+                    %20 <span class="block text-[10px] text-brand-300">Standart</span>
+                  </button>
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-brand-500 transition-all text-slate-300" data-infill="40">
+                    %40 <span class="block text-[10px] text-slate-500">Sağlam</span>
+                  </button>
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-brand-500 transition-all text-slate-300" data-infill="100">
+                    %100 <span class="block text-[10px] text-slate-500">Masif</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. Katman Kalitesi & Renk Grid -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    3. Katman Kalitesi
+                  </label>
+                  <select id="qualitySelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    <option value="0.28">0.28 mm (Hızlı / Ekonomik)</option>
+                    <option value="0.20" selected>0.20 mm (Standart Kalite)</option>
+                    <option value="0.12">0.12 mm (Ultra Hassas & Pürüzsüz)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    4. Renk
+                  </label>
+                  <select id="colorSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-brand-500">
+                    <option value="Siyah">Siyah (Mat/Klasik)</option>
+                    <option value="Beyaz">Beyaz</option>
+                    <option value="Gri">Gri / Gümüş</option>
+                    <option value="Kırmızı">Kırmızı</option>
+                    <option value="Mavi">Mavi</option>
+                    <option value="Turuncu">Turuncu</option>
+                    <option value="Özel">Özel Renk / Şeffaf</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 4. Adet & Özel Not -->
+              <div class="grid grid-cols-3 gap-4 items-center">
+                <div class="col-span-1">
+                  <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    Adet
+                  </label>
+                  <div class="flex items-center border border-slate-700 rounded-xl bg-slate-950 overflow-hidden">
+                    <button type="button" id="decreaseQty" class="w-8 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors font-bold text-base">-</button>
+                    <input type="number" id="qtyInput" value="1" min="1" max="500" class="w-full bg-transparent text-center text-sm font-semibold text-white focus:outline-none">
+                    <button type="button" id="increaseQty" class="w-8 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors font-bold text-base">+</button>
+                  </div>
+                </div>
+
+                <div class="col-span-2">
+                  <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                    Özel Notunuz (Opsiyonel)
+                  </label>
+                  <input type="text" id="userNote" placeholder="Örn: Dişli parça, vidalama deliği var" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+              </div>
+
+              <!-- Price Box Result -->
+              <div class="p-5 rounded-2xl bg-gradient-to-tr from-slate-950 via-slate-900 to-brand-950 border border-brand-500/30 space-y-3 shadow-inner">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-slate-400 font-medium">Tahmini Toplam Fiyat:</span>
+                  <div class="text-right">
+                    <span id="calculatedPrice" class="text-3xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-brand-400">
+                      150 ₺
+                    </span>
+                    <span class="text-xs text-slate-400 block">+ KDV / Kargo Hariç</span>
+                  </div>
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-1.5 pt-2 border-t border-slate-800">
+                  <i data-lucide="info" class="w-3.5 h-3.5 text-brand-400 shrink-0"></i>
+                  <span>Kesin fiyat, teknik model dilimleme analizi sonrasında hemen teyit edilir.</span>
+                </div>
+              </div>
+
+              <!-- Send Actions -->
+              <div class="space-y-3 pt-1">
+                <button type="button" id="sendWhatsAppBtn" class="w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 hover:-translate-y-0.5 transition-all">
+                  <i data-lucide="message-circle" class="w-5 h-5"></i>
+                  <span>Bu Teklifi WhatsApp ile Gönder & Onayla</span>
+                </button>
+
+                <button type="button" id="openEmailModalBtn" class="w-full py-3 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs flex items-center justify-center gap-2 border border-slate-700 transition-colors">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                  <span>E-posta / Telefon ile Teklif Formu Gönder</span>
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= GALERİ / PORTFOLYO ================= -->
+  <section id="galeri" class="py-24 bg-slate-900/60 border-y border-slate-800/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          <span class="text-xs uppercase tracking-widest font-bold text-brand-400 block mb-2">Başarı Hikayelerimiz</span>
+          <h2 class="text-3xl sm:text-4xl font-display font-extrabold text-white">Önceki Baskılarımız & İşlerimiz</h2>
+          <p class="text-slate-400 text-sm mt-2 max-w-xl">Atölyemizde özenle ürettiğimiz mühendislik parçaları, dekoratif modeller ve prototiplerden bazıları.</p>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap gap-2" id="galleryFilter">
+          <button class="filter-btn active px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white transition-all" data-filter="all">Tümü</button>
+          <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all" data-filter="muhendislik">Mühendislik & Yedek Parça</button>
+          <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all" data-filter="figur">Figür & Sanat</button>
+          <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all" data-filter="mimari">Mimari Maket</button>
+          <button class="filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all" data-filter="prototip">Endüstriyel Prototip</button>
+        </div>
+      </div>
+
+      <!-- Gallery Grid -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="galleryGrid">
+        
+        <!-- Item 1: Endüstriyel Dişli -->
+        <div class="gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300" data-category="muhendislik">
+          <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+            <!-- Simulated Tech Graphic / SVG -->
+            <svg class="w-36 h-36 text-brand-500/80 group-hover:scale-110 group-hover:rotate-45 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700">Mühendislik</span>
+            <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">PETG - %60 Infill</span>
+          </div>
+          <div class="p-6 space-y-2">
+            <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">Yüksek Torklu Helisel Dişli</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">Özel bir paketleme makinesi için aşınmaya ve yüksek torka dayanıklı yedek dişli üretimi.</p>
+            <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+              <span>Baskı Süresi: 6 Saat</span>
+              <span>Katman: 0.16 mm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2: SLA Hassas Figür -->
+        <div class="gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300" data-category="figur">
+          <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+            <svg class="w-36 h-36 text-brand-accent/80 group-hover:scale-110 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-accent border border-slate-700">Figür & Sanat</span>
+            <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">8K SLA Reçine</span>
+          </div>
+          <div class="p-6 space-y-2">
+            <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">Mikron Detaylı Karakter Heykeli</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">Boyama ve sergileme için pürüzsüz yüzeyli, katman çizgisi olmayan 8K reçine baskı.</p>
+            <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+              <span>Baskı Süresi: 8.5 Saat</span>
+              <span>Katman: 0.05 mm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 3: Mimari Maket -->
+        <div class="gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300" data-category="mimari">
+          <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+            <svg class="w-36 h-36 text-yellow-500/80 group-hover:scale-110 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-yellow-400 border border-slate-700">Mimari Maket</span>
+            <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-slate-500/20 text-slate-300 text-[10px] font-bold">Mat Beyaz PLA+</span>
+          </div>
+          <div class="p-6 space-y-2">
+            <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">1:100 Ölçekli Konut Projesi</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">Mimarlık ofisi sunumu için modüler olarak basılıp birleştirilen detaylı bina maketi.</p>
+            <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+              <span>Baskı Süresi: 18 Saat</span>
+              <span>Katman: 0.16 mm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 4: Endüstriyel Elektronik Kutu -->
+        <div class="gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300" data-category="prototip">
+          <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+            <svg class="w-36 h-36 text-orange-500/80 group-hover:scale-110 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-orange-400 border border-slate-700">Prototip</span>
+            <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-bold">ABS Dayanıklı</span>
+          </div>
+          <div class="p-6 space-y-2">
+            <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">IoT Cihaz Muhafazası (Enclosure)</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">Pirinç dişli soket eklemeli, geçmeli kapak sistemine sahip elektronik kutusu prototipi.</p>
+            <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+              <span>Baskı Süresi: 4.5 Saat</span>
+              <span>Katman: 0.20 mm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 5: Drone Parçası (TPU) -->
+        <div class="gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300" data-category="muhendislik">
+          <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+            <svg class="w-36 h-36 text-emerald-400/80 group-hover:scale-110 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-emerald-400 border border-slate-700">Mühendislik</span>
+            <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">TPU Esnek</span>
+          </div>
+          <div class="p-6 space-y-2">
+            <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">FPV Drone Titreşim Sönümleyici</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">Düşmelere ve titreşime karşı kırılmaz, esnek kauçuksu TPU filament ile basılmış kamera yuvası.</p>
+            <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+              <span>Baskı Süresi: 3 Saat</span>
+              <span>Katman: 0.20 mm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 6: Özel Tasarım Vazo -->
+        <div class="gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300" data-category="figur">
+          <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+            <svg class="w-36 h-36 text-brand-400/80 group-hover:scale-110 transition-all duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700">Dekorasyon</span>
+            <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-brand-500/20 text-brand-300 text-[10px] font-bold">Silk Bronz PLA</span>
+          </div>
+          <div class="p-6 space-y-2">
+            <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">Parametrik Geometrik Vazo</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">İpek parlaklığında bronz filament ile tek parça spiral vazo modu üretimi.</p>
+            <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+              <span>Baskı Süresi: 5 Saat</span>
+              <span>Katman: 0.24 mm</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= MALZEME KARŞILAŞTIRMA REHBERİ ================= -->
+  <section id="malzemeler" class="py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <h2 class="text-xs uppercase tracking-widest font-bold text-brand-400">Teknik Bilgi</h2>
+        <h3 class="text-3xl sm:text-4xl font-display font-extrabold text-white">Hangi Malzeme Sizin İçin Uygun?</h3>
+        <p class="text-slate-400 text-sm sm:text-base">Kullanım amacınıza göre doğru malzemeyi seçmeniz maliyet ve mukavemet açısından çok önemlidir.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- PLA Card -->
+        <div class="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-brand-500/40 transition-all flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-display font-bold text-white">PLA</span>
+              <span class="px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-semibold">Popüler</span>
+            </div>
+            <p class="text-xs text-slate-400">Bitkisel nişasta bazlı, çevre dostu. Prototipleme, hobi ve dekoratif modeller için en ekonomik seçenek.</p>
+            
+            <div class="space-y-2 text-xs border-t border-slate-800 pt-4">
+              <div class="flex justify-between text-slate-300">
+                <span>Mukavemet:</span>
+                <span class="text-brand-400">★★★☆☆</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Sıcaklık Dayanımı:</span>
+                <span class="text-slate-400">~55°C</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Yüzey Pürüzsüzlüğü:</span>
+                <span class="text-brand-400">★★★★☆</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-6">Önerilen: Figür, maket, hediye, ilk prototip</p>
+        </div>
+
+        <!-- PETG Card -->
+        <div class="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 transition-all flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-display font-bold text-white">PETG</span>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">Dayanıklı</span>
+            </div>
+            <p class="text-xs text-slate-400">Su şişeleriyle aynı hammadde. Kimyasallara, suya ve darbeye dayanıklıdır. Fonksiyonel parçalarda bir numara.</p>
+            
+            <div class="space-y-2 text-xs border-t border-slate-800 pt-4">
+              <div class="flex justify-between text-slate-300">
+                <span>Mukavemet:</span>
+                <span class="text-emerald-400">★★★★☆</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Sıcaklık Dayanımı:</span>
+                <span class="text-slate-400">~75°C</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Dış Ortam / UV:</span>
+                <span class="text-emerald-400">★★★★☆</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-6">Önerilen: Mekanik aparat, yedek parça, dış ortam</p>
+        </div>
+
+        <!-- ABS Card -->
+        <div class="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-orange-500/40 transition-all flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-display font-bold text-white">ABS</span>
+              <span class="px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 text-xs font-semibold">Endüstriyel</span>
+            </div>
+            <p class="text-xs text-slate-400">LEGO tuğlalarında kullanılan malzeme. Yüksek sıcaklığa dirençli, sonradan zımparalanıp asetonla parlatılabilir.</p>
+            
+            <div class="space-y-2 text-xs border-t border-slate-800 pt-4">
+              <div class="flex justify-between text-slate-300">
+                <span>Mukavemet:</span>
+                <span class="text-orange-400">★★★★☆</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Sıcaklık Dayanımı:</span>
+                <span class="text-slate-400">~95°C</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>İşlenebilirlik:</span>
+                <span class="text-orange-400">★★★★★</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-6">Önerilen: Otomotiv içi parçalar, sıcak ortam aparatları</p>
+        </div>
+
+        <!-- SLA Reçine Card -->
+        <div class="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/40 transition-all flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-display font-bold text-white">Reçine (SLA)</span>
+              <span class="px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold">Ultra Detay</span>
+            </div>
+            <p class="text-xs text-slate-400">UV ışıkla sıvı reçinenin katman katman dondurulması. Katman çizgisi sıfırdır, mikron düzeyinde keskin detay sunar.</p>
+            
+            <div class="space-y-2 text-xs border-t border-slate-800 pt-4">
+              <div class="flex justify-between text-slate-300">
+                <span>Detay Hassasiyeti:</span>
+                <span class="text-purple-400">★★★★★</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Yüzey Kalitesi:</span>
+                <span class="text-purple-400">Pürüzsüz</span>
+              </div>
+              <div class="flex justify-between text-slate-300">
+                <span>Katman Kalınlığı:</span>
+                <span class="text-slate-400">0.025 - 0.05 mm</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-6">Önerilen: Kuyumculuk döküm modelleri, minyatür figür</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= SIKÇA SORULAN SORULAR (SSS) ================= -->
+  <section id="sss" class="py-24 bg-slate-900/50 border-t border-slate-800/80">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center space-y-4 mb-14">
+        <h2 class="text-xs uppercase tracking-widest font-bold text-brand-400">Merak Edilenler</h2>
+        <h3 class="text-3xl sm:text-4xl font-display font-extrabold text-white">Sıkça Sorulan Sorular</h3>
+        <p class="text-slate-400 text-sm">3D baskı hizmetimizle ilgili aklınıza takılan soruların cevapları.</p>
+      </div>
+
+      <div class="space-y-4">
+        
+        <!-- FAQ 1 -->
+        <div class="faq-item rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+          <button class="faq-question w-full p-5 text-left font-semibold text-white flex justify-between items-center hover:text-brand-400 transition-colors">
+            <span>Elimde 3D model dosyası yok, sadece fikrim veya kırık bir parçam var. Ne yapabilirim?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-900 pt-3">
+            Hiç sorun değil! Kırık parçanızın fotoğraflarını ve cetvelle ölçülerini WhatsApp hattımıza iletebilirsiniz. Tersine mühendislik ve CAD modelleme ekibimiz parçanızı sıfırdan 3D modele dönüştürüp baskıya hazır hale getirebilir.
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-item rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+          <button class="faq-question w-full p-5 text-left font-semibold text-white flex justify-between items-center hover:text-brand-400 transition-colors">
+            <span>Baskı ücreti neye göre belirleniyor?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-900 pt-3">
+            Fiyatlandırma temel olarak üç faktöre dayanır: Modelin hacmi ve harcanacak malzeme miktarı (gramaj), yazıcının baskıyı tamamlama süresi (saat) ve seçtiğiniz malzemenin türü (PLA, PETG, Reçine vb.). Web sitemizdeki hesaplayıcı bu kriterlere göre anında tahmini fiyat sunar.
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="faq-item rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+          <button class="faq-question w-full p-5 text-left font-semibold text-white flex justify-between items-center hover:text-brand-400 transition-colors">
+            <span>Siparişim ne kadar sürede elime ulaşır?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-900 pt-3">
+            Küçük ve orta ölçekli modeller sipariş onayından sonra genellikle 24 ila 48 saat içerisinde üretilip kargoya teslim edilir. Çok adetli seri üretimlerde ise teslimat takvimi sipariş esnasında belirtilir.
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="faq-item rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+          <button class="faq-question w-full p-5 text-left font-semibold text-white flex justify-between items-center hover:text-brand-400 transition-colors">
+            <span>Kargo ile gönderim yapıyor musunuz? Kırılma riski var mı?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-900 pt-3">
+            Tüm Türkiye'ye anlaşmalı kargo firmalarımızla gönderim yapıyoruz. Tüm parçalar baloncuklu naylon (patpat) ve darbe emici özel dolgu malzemeleriyle kutulanır. Taşıma sırasında oluşabilecek herhangi bir hasara karşı %100 yeniden basım garantimiz bulunmaktadır.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= İLETİŞİM & HIZLI TEKLİF FORMU MODAL ================= -->
+  <section id="iletisim" class="py-20 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="rounded-3xl bg-gradient-to-tr from-slate-950 via-slate-900 to-brand-950/60 border border-slate-800 p-8 sm:p-12 lg:p-16 relative overflow-hidden">
+        
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          
+          <div class="space-y-6">
+            <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 font-semibold text-xs uppercase tracking-wider">Bize Ulaşın</span>
+            <h3 class="text-3xl sm:text-4xl font-display font-black text-white">
+              Projeniz İçin Doğrudan Görüşelim
+            </h3>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Özel üretimler, toplu siparişler veya teknik sorularınız için WhatsApp üzerinden anında yanıt alabilir veya e-posta gönderebilirsiniz.
+            </p>
+
+            <div class="space-y-4 pt-2">
+              <div class="flex items-center gap-4 text-slate-300 text-sm">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-400 shrink-0">
+                  <i data-lucide="map-pin" class="w-5 h-5"></i>
+                </div>
+                <span>İstanbul, Türkiye (Atölye & Üretim Merkezi)</span>
+              </div>
+              <div class="flex items-center gap-4 text-slate-300 text-sm">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-400 shrink-0">
+                  <i data-lucide="mail" class="w-5 h-5"></i>
+                </div>
+                <span>teklif@ist3dye.com</span>
+              </div>
+              <div class="flex items-center gap-4 text-slate-300 text-sm">
+                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-emerald-400 shrink-0">
+                  <i data-lucide="phone-call" class="w-5 h-5"></i>
+                </div>
+                <span>+90 (500) 000 00 00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Contact Form -->
+          <div class="bg-slate-950/90 rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-4">
+            <h4 class="text-lg font-bold text-white">Hızlı İletişim Formu</h4>
+            
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Adınız & Soyadınız</label>
+              <input type="text" id="contactName" placeholder="Adınız" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Telefon / WhatsApp</label>
+                <input type="tel" id="contactPhone" placeholder="05xx xxx xx xx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">E-posta</label>
+                <input type="email" id="contactEmail" placeholder="ornek@mail.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Mesajınız & Parça Detayı</label>
+              <textarea id="contactMessage" rows="3" placeholder="Parçanızın boyutları, kullanım amacı veya talebiniz..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500"></textarea>
+            </div>
+
+            <button type="button" id="submitContactBtn" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>Teklif Talebini Gönder</span>
+            </button>
+            <p id="contactStatus" class="hidden text-xs text-center text-emerald-400"></p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-slate-950 border-t border-slate-800/80 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <span class="font-display font-bold text-lg text-white">ist3Dye<span class="text-brand-400">.com</span></span>
+        <span class="text-xs text-slate-500 ml-2">© 2026 Tüm Hakları Saklıdır.</span>
+      </div>
+
+      <div class="flex items-center gap-6 text-xs text-slate-400">
+        <a href="#teklif-al" class="hover:text-white transition-colors">Fiyat Hesapla</a>
+        <a href="#galeri" class="hover:text-white transition-colors">Galeri</a>
+        <a href="#malzemeler" class="hover:text-white transition-colors">Malzemeler</a>
+        <a href="#sss" class="hover:text-white transition-colors">SSS</a>
+        <a href="#iletisim" class="hover:text-white transition-colors">İletişim</a>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ================= FLOATING WHATSAPP BUTTON ================= -->
+  <a href="https://wa.me/905000000000?text=Merhaba,%20ist3Dye.com%20üzerinden%20ulaşıyorum.%203D%20baskı%20teklifi%20almak%20istiyorum." 
+     target="_blank" 
+     class="fixed bottom-6 right-6 z-40 p-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white shadow-2xl shadow-emerald-500/50 hover:scale-110 transition-transform duration-200 flex items-center justify-center group"
+     title="WhatsApp Hızlı İletişim">
+    <i data-lucide="message-circle" class="w-7 h-7"></i>
+    <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs group-hover:ml-2 text-xs font-bold transition-all duration-300">
+      WhatsApp'tan Yaz
+    </span>
+  </a>
+
+  <!-- Custom Scripts -->
+  <script src="assets/js/viewer3d.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
