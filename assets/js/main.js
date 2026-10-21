@@ -265,85 +265,34 @@ Merhaba, yukarıdaki parametrelerde 3D baskı yaptırmak ve kesin teklif almak i
     contactMsg.value = `Model: ${currentModel.name} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Renk: ${colorSelect.value} | Adet: ${pricing.qty} | Tahmini Tutar: ${pricing.totalPrice} TL`;
   });
 
-  // Contact Form Submit via FormSubmit.co to teklif@ist3dye.com
-  const submitContactBtn = document.getElementById('submitContactBtn');
-  const contactStatus = document.getElementById('contactStatus');
-
-  submitContactBtn?.addEventListener('click', async () => {
-    const name = document.getElementById('contactName').value.trim();
-    const phone = document.getElementById('contactPhone').value.trim();
-    const email = document.getElementById('contactEmail').value.trim();
-    const message = document.getElementById('contactMessage').value.trim();
-
-    if (!name || !phone) {
-      alert('Lütfen en azından Adınızı ve Telefon numaranızı girin.');
-      return;
+  // Check for successful form submit return
+  if (window.location.search.includes('success=1')) {
+    const contactStatus = document.getElementById('contactStatus');
+    if (contactStatus) {
+      contactStatus.textContent = '✓ Talebiniz ve bilgileriniz başarıyla bize ulaştı! En kısa sürede sizinle iletişime geçeceğiz.';
+      contactStatus.className = 'text-sm text-center text-emerald-400 font-semibold block p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30';
     }
+  }
 
-    submitContactBtn.disabled = true;
-    submitContactBtn.innerHTML = `
-      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-      </svg>
-      <span>Talebiniz İletiliyor...</span>
-    `;
-
+  // Sync 3D quote selections into form before submit
+  const contactForm = document.getElementById('contactForm');
+  contactForm?.addEventListener('submit', () => {
     const pricing = calculatePrice();
+    const hiddenModel = document.getElementById('hiddenModelName');
+    const hiddenMat = document.getElementById('hiddenMaterial');
+    const hiddenInf = document.getElementById('hiddenInfill');
+    const hiddenQual = document.getElementById('hiddenQuality');
+    const hiddenCol = document.getElementById('hiddenColor');
+    const hiddenQuantity = document.getElementById('hiddenQty');
+    const hiddenPr = document.getElementById('hiddenPrice');
 
-    const payload = {
-      _subject: `Yeni 3D Baskı Talebi: ${name} (${phone})`,
-      _template: 'table',
-      _captcha: 'false',
-      _replyto: email || undefined,
-      'Müşteri Adı Soyadı': name,
-      'Telefon / WhatsApp': phone,
-      'Müşteri E-Posta': email || 'Belirtilmedi',
-      'Mesaj / Parça Detayı': message || 'Belirtilmedi',
-      '3D Model Dosyası': currentModel.hasFile ? currentModel.name : 'Model yüklenmedi',
-      'Seçilen Malzeme': materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim(),
-      'Doluluk Oranı (Infill)': `%${selectedInfill}`,
-      'Katman Kalitesi': qualitySelect.options[qualitySelect.selectedIndex].text,
-      'Renk Tercihi': colorSelect.value,
-      'Sipariş Adedi': `${pricing.qty} adet`,
-      'Tahmini Toplam Tutar': `${pricing.totalPrice.toLocaleString('tr-TR')} ₺`
-    };
-
-    try {
-      const response = await fetch('https://formsubmit.co/ajax/teklif@ist3dye.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-
-      submitContactBtn.innerHTML = `<span>Teklif Talebini Gönder</span>`;
-      submitContactBtn.disabled = false;
-
-      if (response.ok || result.success === 'true') {
-        contactStatus.textContent = '✓ Talebiniz başarıyla alındı! Ekibimiz en kısa sürede sizinle iletişime geçecektir.';
-        contactStatus.className = 'text-xs text-center text-emerald-400 block pt-2';
-
-        // Clear fields
-        document.getElementById('contactName').value = '';
-        document.getElementById('contactPhone').value = '';
-        document.getElementById('contactEmail').value = '';
-        document.getElementById('contactMessage').value = '';
-      } else {
-        contactStatus.textContent = 'Bir bildirim oluştu, lütfen WhatsApp hattımız üzerinden de bize ulaşabilirsiniz.';
-        contactStatus.className = 'text-xs text-center text-amber-400 block pt-2';
-      }
-    } catch (err) {
-      console.error('Form gönderme hatası:', err);
-      submitContactBtn.innerHTML = `<span>Teklif Talebini Gönder</span>`;
-      submitContactBtn.disabled = false;
-      contactStatus.textContent = '✓ Talebiniz alındı! Dilerseniz WhatsApp üzerinden de hızlıca yazabilirsiniz.';
-      contactStatus.className = 'text-xs text-center text-emerald-400 block pt-2';
-    }
+    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? currentModel.name : 'Model yüklenmedi';
+    if (hiddenMat) hiddenMat.value = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
+    if (hiddenInf) hiddenInf.value = `%${selectedInfill}`;
+    if (hiddenQual) hiddenQual.value = qualitySelect.options[qualitySelect.selectedIndex].text;
+    if (hiddenCol) hiddenCol.value = colorSelect.value;
+    if (hiddenQuantity) hiddenQuantity.value = pricing.qty;
+    if (hiddenPr) hiddenPr.value = `${pricing.totalPrice} ₺`;
   });
 
   // ================= GALLERY FILTER =================

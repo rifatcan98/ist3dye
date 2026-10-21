@@ -924,36 +924,51 @@
           </div>
 
           <!-- Quick Contact Form -->
-          <div class="bg-slate-950/90 rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-4">
+          <form id="contactForm" action="https://formsubmit.co/rifatcankoksal123456789@gmail.com" method="POST" class="bg-slate-950/90 rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-4">
             <h4 class="text-lg font-bold text-white">Hızlı İletişim Formu</h4>
             
+            <!-- FormSubmit hidden configs -->
+            <input type="hidden" name="_subject" value="ist3Dye.com - Yeni Teklif & İletişim Talebi">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="https://ist3dye.com?success=1#iletisim">
+
+            <!-- Hidden quote details populated from 3D calculator -->
+            <input type="hidden" name="3D_Model" id="hiddenModelName" value="Model yüklenmedi">
+            <input type="hidden" name="Malzeme" id="hiddenMaterial" value="PLA">
+            <input type="hidden" name="Doluluk_Orani" id="hiddenInfill" value="%20">
+            <input type="hidden" name="Katman_Kalitesi" id="hiddenQuality" value="0.20 mm">
+            <input type="hidden" name="Renk" id="hiddenColor" value="Siyah">
+            <input type="hidden" name="Adet" id="hiddenQty" value="1">
+            <input type="hidden" name="Tahmini_Fiyat" id="hiddenPrice" value="150 ₺">
+
             <div>
-              <label class="block text-xs text-slate-400 mb-1">Adınız & Soyadınız</label>
-              <input type="text" id="contactName" placeholder="Adınız" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <label class="block text-xs text-slate-400 mb-1">Adınız & Soyadınız *</label>
+              <input type="text" name="Ad_Soyad" id="contactName" required placeholder="Adınız Soyadınız" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs text-slate-400 mb-1">Telefon / WhatsApp</label>
-                <input type="tel" id="contactPhone" placeholder="05xx xxx xx xx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+                <label class="block text-xs text-slate-400 mb-1">Telefon / WhatsApp *</label>
+                <input type="tel" name="Telefon" id="contactPhone" required placeholder="05xx xxx xx xx" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
               </div>
               <div>
                 <label class="block text-xs text-slate-400 mb-1">E-posta</label>
-                <input type="email" id="contactEmail" placeholder="ornek@mail.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+                <input type="email" name="Email" id="contactEmail" placeholder="ornek@mail.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
               </div>
             </div>
 
             <div>
               <label class="block text-xs text-slate-400 mb-1">Mesajınız & Parça Detayı</label>
-              <textarea id="contactMessage" rows="3" placeholder="Parçanızın boyutları, kullanım amacı veya talebiniz..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500"></textarea>
+              <textarea name="Mesaj" id="contactMessage" rows="3" placeholder="Parçanızın boyutları, kullanım amacı veya talebiniz..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500"></textarea>
             </div>
 
-            <button type="button" id="submitContactBtn" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+            <button type="submit" id="submitContactBtn" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2">
               <i data-lucide="send" class="w-4 h-4"></i>
               <span>Teklif Talebini Gönder</span>
             </button>
             <p id="contactStatus" class="hidden text-xs text-center text-emerald-400"></p>
-          </div>
+          </form>
 
         </div>
 
