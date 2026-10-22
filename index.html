@@ -89,7 +89,7 @@
 
       <!-- CTA Buttons -->
       <div class="hidden sm:flex items-center gap-3">
-        <a href="https://api.whatsapp.com/send?phone=905000000000&text=Merhaba,%203D%20bask%C4%B1%20hakk%C4%B1nda%20bilgi%20ve%20teklif%20almak%20istiyorum." 
+        <a id="navWhatsAppBtn" href="https://api.whatsapp.com/send?phone=905000000000&text=Merhaba,%203D%20bask%C4%B1%20hakk%C4%B1nda%20bilgi%20ve%20teklif%20almak%20istiyorum." 
            target="_blank" 
            class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all duration-200">
           <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
@@ -1051,19 +1051,23 @@
                 <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-400 shrink-0">
                   <i data-lucide="map-pin" class="w-5 h-5"></i>
                 </div>
-                <span>İstanbul / Bahçelievler, Türkiye (Atölye & Üretim Merkezi)</span>
+                <span id="contactDisplayAddress">İstanbul / Bahçelievler, Türkiye (Atölye & Üretim Merkezi)</span>
               </div>
               <div class="flex items-center gap-4 text-slate-300 text-sm">
                 <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-brand-400 shrink-0">
                   <i data-lucide="mail" class="w-5 h-5"></i>
                 </div>
-                <span>teklif@ist3dye.com</span>
+                <a id="contactDisplayEmailLink" href="mailto:teklif@ist3dye.com" class="hover:text-brand-400 transition-colors">
+                  <span id="contactDisplayEmail">teklif@ist3dye.com</span>
+                </a>
               </div>
               <div class="flex items-center gap-4 text-slate-300 text-sm">
                 <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-emerald-400 shrink-0">
                   <i data-lucide="phone-call" class="w-5 h-5"></i>
                 </div>
-                <span>+90 (500) 000 00 00</span>
+                <a id="contactDisplayPhoneLink" href="tel:+905000000000" class="hover:text-emerald-400 transition-colors font-mono font-medium">
+                  <span id="contactDisplayPhone">+90 (500) 000 00 00</span>
+                </a>
               </div>
             </div>
           </div>
@@ -1297,7 +1301,8 @@
   </div>
 
   <!-- ================= FLOATING WHATSAPP BUTTON ================= -->
-  <a href="https://api.whatsapp.com/send?phone=905000000000&text=Merhaba,%20ist3Dye.com%20üzerinden%20ulaşıyorum.%203D%20baskı%20teklifi%20almak%20istiyorum." 
+  <a id="floatingWhatsAppBtn" 
+     href="https://api.whatsapp.com/send?phone=905000000000&text=Merhaba,%20ist3Dye.com%20üzerinden%20ulaşıyorum.%203D%20baskı%20teklifi%20almak%20istiyorum." 
      target="_blank" 
      class="fixed bottom-6 right-6 z-40 p-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white shadow-2xl shadow-emerald-500/50 hover:scale-110 transition-transform duration-200 flex items-center justify-center group"
      title="WhatsApp Hızlı İletişim">

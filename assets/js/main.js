@@ -26,12 +26,78 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeConfig = { ...DEFAULT_CONFIG };
 
   function getSiteConfig() {
-    const saved = localStorage.getItem('ist3dye_config');
-    return saved ? { ...activeConfig, ...JSON.parse(saved) } : activeConfig;
+    return activeConfig;
+  }
+
+  // Update DOM elements dynamically with config values (Phone, Email, Address, Links)
+  function applyConfigToDOM(cfg) {
+    if (!cfg) return;
+
+    // 1. Phone number
+    if (cfg.whatsappPhone) {
+      const rawPhone = String(cfg.whatsappPhone).replace(/[^0-9]/g, '');
+      
+      // Formatted phone: 905111111111 -> +90 (511) 111 11 11
+      let formattedPhone = `+${rawPhone}`;
+      if (rawPhone.startsWith('90') && rawPhone.length === 12) {
+        formattedPhone = `+90 (${rawPhone.slice(2, 5)}) ${rawPhone.slice(5, 8)} ${rawPhone.slice(8, 10)} ${rawPhone.slice(10, 12)}`;
+      } else if (rawPhone.length === 10) {
+        formattedPhone = `+90 (${rawPhone.slice(0, 3)}) ${rawPhone.slice(3, 6)} ${rawPhone.slice(6, 8)} ${rawPhone.slice(8, 10)}`;
+      }
+      
+      const displayPhoneEl = document.getElementById('contactDisplayPhone');
+      if (displayPhoneEl) displayPhoneEl.textContent = formattedPhone;
+
+      const displayPhoneLink = document.getElementById('contactDisplayPhoneLink');
+      if (displayPhoneLink) displayPhoneLink.href = `tel:+${rawPhone}`;
+
+      // Update all WhatsApp links
+      const navWa = document.getElementById('navWhatsAppBtn');
+      if (navWa) {
+        navWa.href = `https://api.whatsapp.com/send?phone=${rawPhone}&text=${encodeURIComponent('Merhaba, 3D baskı hakkında bilgi ve teklif almak istiyorum.')}`;
+      }
+
+      const floatWa = document.getElementById('floatingWhatsAppBtn');
+      if (floatWa) {
+        floatWa.href = `https://api.whatsapp.com/send?phone=${rawPhone}&text=${encodeURIComponent('Merhaba, ist3Dye.com üzerinden ulaşıyorum. 3D baskı teklifi almak istiyorum.')}`;
+      }
+
+      const designWa = document.getElementById('whatsappDesignBtn');
+      if (designWa) {
+        designWa.href = `https://api.whatsapp.com/send?phone=${rawPhone}&text=${encodeURIComponent('Merhaba, elimde 3D model dosyası yok. Özel parça tasarımı ve 3D baskı için destek almak istiyorum.')}`;
+      }
+    }
+
+    // 2. Email
+    if (cfg.contactEmail) {
+      const displayEmailEl = document.getElementById('contactDisplayEmail');
+      if (displayEmailEl) displayEmailEl.textContent = cfg.contactEmail;
+      
+      const displayEmailLink = document.getElementById('contactDisplayEmailLink');
+      if (displayEmailLink) displayEmailLink.href = `mailto:${cfg.contactEmail}`;
+    }
+
+    // 3. Address
+    if (cfg.workshopAddress) {
+      const displayAddrEl = document.getElementById('contactDisplayAddress');
+      if (displayAddrEl) displayAddrEl.textContent = `${cfg.workshopAddress} (Atölye & Üretim Merkezi)`;
+    }
   }
 
   // Load centralized config from data/config.json
   async function loadCentralizedConfig() {
+    // First apply local or default
+    const savedLocal = localStorage.getItem('ist3dye_config');
+    if (savedLocal) {
+      try {
+        activeConfig = { ...DEFAULT_CONFIG, ...JSON.parse(savedLocal) };
+        applyConfigToDOM(activeConfig);
+      } catch (e) {}
+    } else {
+      applyConfigToDOM(activeConfig);
+    }
+
+    // Then fetch canonical server data/config.json
     try {
       const res = await fetch('data/config.json?v=' + Date.now());
       if (res.ok) {
@@ -42,15 +108,17 @@ document.addEventListener('DOMContentLoaded', () => {
             ...data.pricing,
             ...data.contact
           };
+          localStorage.setItem('ist3dye_config', JSON.stringify(activeConfig));
+          applyConfigToDOM(activeConfig);
         }
-        if (data.materials && !localStorage.getItem('ist3dye_materials')) {
+        if (data.materials) {
           localStorage.setItem('ist3dye_materials', JSON.stringify(data.materials));
+          populateMaterialsFromStorage();
         }
-        if (data.gallery && !localStorage.getItem('ist3dye_gallery')) {
+        if (data.gallery) {
           localStorage.setItem('ist3dye_gallery', JSON.stringify(data.gallery));
+          populateGalleryFromStorage();
         }
-        populateMaterialsFromStorage();
-        populateGalleryFromStorage();
         calculatePrice();
       }
     } catch (e) {
