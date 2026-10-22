@@ -52,6 +52,12 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Fix webkit text gradient clipping across all browsers */
+.bg-clip-text {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
 /* Custom Infill Range Slider */
 #infillSlider {
   -webkit-appearance: none;
