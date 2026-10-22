@@ -54,10 +54,17 @@
 
       <form id="adminLoginForm" class="space-y-4">
         <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Kullanıcı Adı</label>
+          <div class="relative">
+            <input type="text" id="adminUsernameInput" placeholder="Kullanıcı adınızı girin..." required autocomplete="username" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Yönetici Şifresi</label>
           <div class="relative">
-            <input type="password" id="adminPasswordInput" placeholder="Şifrenizi girin..." required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 pr-10">
-            <button type="button" id="togglePasswordVisibility" class="absolute right-3 top-3.5 text-slate-400 hover:text-white">
+            <input type="password" id="adminPasswordInput" placeholder="Şifrenizi girin..." required autocomplete="current-password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 pr-10">
+            <button type="button" id="togglePasswordVisibility" class="absolute right-3 top-3.5 text-slate-400 hover:text-white" title="Şifreyi Göster/Gizle">
               <i data-lucide="eye" class="w-4 h-4"></i>
             </button>
           </div>
@@ -127,7 +134,7 @@
         </button>
         <button class="tab-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 flex items-center gap-2" data-tab="ayarlar">
           <i data-lucide="settings" class="w-4 h-4"></i>
-          <span>Genel Bilgiler & Şifre</span>
+          <span>Genel Bilgiler & Güvenlik</span>
         </button>
       </div>
 
@@ -246,7 +253,7 @@
         <div class="bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
           <div>
             <h2 class="text-xl font-display font-bold text-white">İletişim Bilgileri & Güvenlik</h2>
-            <p class="text-xs text-slate-400">Sitede görünen telefon, adres ve yönetim paneli giriş şifresi.</p>
+            <p class="text-xs text-slate-400">Sitede görünen telefon, adres ve yönetim paneli giriş bilgileri.</p>
           </div>
 
           <div class="grid sm:grid-cols-2 gap-6">
@@ -265,7 +272,13 @@
               <input type="text" id="cfgWorkshopAddress" placeholder="İstanbul / Bahçelievler, Türkiye" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
             </div>
 
-            <div class="space-y-2 sm:col-span-2 pt-4 border-t border-slate-800">
+            <div class="space-y-2 pt-4 border-t border-slate-800">
+              <label class="block text-xs font-semibold text-slate-300">Yönetici Kullanıcı Adı</label>
+              <input type="text" id="cfgAdminUsername" placeholder="admin" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+              <span class="text-[11px] text-slate-500">Panele giriş yaparken kullanacağınız kullanıcı adı (varsayılan: admin).</span>
+            </div>
+
+            <div class="space-y-2 pt-4 border-t border-slate-800">
               <label class="block text-xs font-semibold text-slate-300">Yeni Yönetici Şifresi</label>
               <input type="password" id="cfgNewAdminPassword" placeholder="Şifrenizi değiştirmek için yeni şifre yazın..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
               <span class="text-[11px] text-slate-500">Boş bırakırsanız mevcut şifreniz değişmez.</span>
