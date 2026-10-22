@@ -47,13 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ================= STATE & CONFIG =================
   let currentModel = {
-    name: 'Örnek Test Modeli',
-    volumeCm3: 25,
-    x: 64,
-    y: 64,
-    z: 18,
-    triangles: 1440,
-    format: 'DEMO',
+    name: 'Henüz 3D Model Yüklenmedi',
+    volumeCm3: 0,
+    x: 0,
+    y: 0,
+    z: 0,
+    triangles: 0,
+    format: 'BEKLENİYOR',
     scale: 1.0,
     isOversize: false,
     hasFile: false
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
     } catch (e) {
-      console.error('Malzemeler okunamad─▒:', e);
+      console.error('Malzemeler okunamadı:', e);
     }
   }
 
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
       }
     } catch (e) {
-      console.error('Galeri okunamad─▒:', e);
+      console.error('Galeri okunamadı:', e);
     }
   }
 
@@ -176,6 +176,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ================= PRICE & WEIGHT CALCULATION =================
   function calculatePrice() {
+    const qty = Math.max(1, parseInt(qtyInput?.value) || 1);
+
+    // Parça yüklü değilse (veya örnek model henüz seçilmediyse) hiçbir değer gösterme
+    if (!currentModel.hasFile || currentModel.volumeCm3 <= 0) {
+      if (calculatedPriceEl) {
+        calculatedPriceEl.innerHTML = '-- <span class="text-xl sm:text-2xl font-black text-white ml-1.5 inline-block drop-shadow">TL</span>';
+      }
+      if (quoteGramsEl) quoteGramsEl.textContent = '--';
+      if (quoteDimsEl) quoteDimsEl.textContent = '--';
+      if (quoteTimeEl) quoteTimeEl.textContent = '--';
+      if (quoteUnitPriceEl) quoteUnitPriceEl.textContent = '--';
+      if (modelStatusDot) {
+        modelStatusDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 shrink-0';
+      }
+      if (modelStatusText) {
+        modelStatusText.textContent = 'Henüz 3D Model Yüklenmedi';
+      }
+      if (modelFormatBadge) {
+        modelFormatBadge.textContent = 'BEKLENİYOR';
+        modelFormatBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono shrink-0';
+      }
+      if (oversizeWarning) {
+        oversizeWarning.classList.add('hidden');
+      }
+      return { unitPrice: 0, totalPrice: 0, estimatedGrams: 0, weightText: '--', printTimeText: '--', qty };
+    }
+
     const cfg = getSiteConfig();
     const baseSetupFee = cfg.baseSetupFee || 35; // Makine hazırlık bedeli
     const baseGramPrice = cfg.baseGramPrice || 2.4; // Gram başı baz TL
@@ -202,9 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hız / Ekspres Teslimat katsayısı
     const speedMultiplier = (selectedSpeed === 'express') ? 1.25 : 1.0;
-
-    // Adet
-    const qty = Math.max(1, parseInt(qtyInput.value) || 1);
 
     // Gerçekçi Gramaj Hesabı
     const infillRatio = 0.25 + (selectedInfill / 100) * 0.75;
@@ -608,15 +632,24 @@ document.addEventListener('DOMContentLoaded', () => {
       notesSection = `\n[ ÖZEL TALEPLER & NOTLAR ]\n${notesList.join('\n')}\n`;
     }
 
+    const modelSection = currentModel.hasFile
+      ? `[ MODEL BİLGİLERİ ]
+• Dosya: ${currentModel.name} (${currentModel.format})${scaleText}
+• Boyutlar: ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
+• Ağırlık & Süre: ${pricing.weightText} | ${pricing.printTimeText}`
+      : `[ MODEL BİLGİLERİ ]
+• Dosya: Henüz yüklenmedi (WhatsApp üzerinden paylaşılacak)`;
+
+    const totalLine = currentModel.hasFile
+      ? `${totalLine}`
+      : `*TAHMİNİ TOPLAM: Dosya İncelendikten Sonra Belirlenecek*`;
+
     const message = 
 `════════════════════════════
 *ist3Dye.com | 3D BASKI TEKLİF TALEBİ*
 ════════════════════════════
 
-[ MODEL BİLGİLERİ ]
-• Dosya: ${currentModel.name} (${currentModel.format})${scaleText}
-• Boyutlar: ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
-• Ağırlık & Süre: ${pricing.weightText} | ${pricing.printTimeText}
+${modelSection}
 
 [ BASKI PARAMETRELERİ ]
 • Malzeme: ${materialName}
@@ -650,7 +683,7 @@ Merhaba, web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletm
     const ndaText = ndaCheckbox?.checked ? ' [NDA Talep Edildi]' : '';
 
     if (contactMsg) {
-      contactMsg.value = `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ${pricing.weightText} | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Hız: ${speedText} | Adet: ${pricing.qty} | Tutar: ${pricing.totalPrice} TL${ndaText}`;
+      contactMsg.value = currentModel.hasFile ? `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ${pricing.weightText} | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Hız: ${speedText} | Adet: ${pricing.qty} | Tutar: ${pricing.totalPrice} TL${ndaText}` : `Model: Dosya ayrıca iletilecek | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Hız: ${speedText} | Adet: ${pricing.qty}${ndaText}`;
     }
   });
 
