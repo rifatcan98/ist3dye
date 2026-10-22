@@ -7,16 +7,41 @@
     "discount10": 15
   },
   "contact": {
-    "whatsappPhone": "905000000000",
+    "whatsappPhone": "905000000001",
     "contactEmail": "teklif@ist3dye.com",
     "workshopAddress": "İstanbul / Bahçelievler, Türkiye"
   },
   "materials": [
-    { "id": "pla", "name": "PLA Standart", "rate": 1.0, "desc": "Ekonomik & Çevre Dostu - Dekoratif ve Prototip" },
-    { "id": "petg", "name": "PETG Dayanıklı", "rate": 1.25, "desc": "Yüksek Mukavemet & Kimyasal ve Dış Ortam Direnci" },
-    { "id": "abs", "name": "ABS Endüstriyel", "rate": 1.35, "desc": "Sıcaklığa ve Darbeye Dirençli Fonksiyonel Parça" },
-    { "id": "asa", "name": "ASA Filament", "rate": 1.40, "desc": "UV & Dış Hava Şartlarına Ultra Dayanıklı Endüstriyel" },
-    { "id": "tpu", "name": "TPU Esnek", "rate": 1.60, "desc": "Kauçuk benzeri, bükülebilir ve kırılmaz esnek parça" }
+    {
+      "id": "pla",
+      "name": "PLA Standart",
+      "rate": 1,
+      "desc": "Ekonomik & Çevre Dostu - Dekoratif ve Prototip"
+    },
+    {
+      "id": "petg",
+      "name": "PETG Dayanıklı",
+      "rate": 1.25,
+      "desc": "Yüksek Mukavemet & Kimyasal ve Dış Ortam Direnci"
+    },
+    {
+      "id": "abs",
+      "name": "ABS Endüstriyel",
+      "rate": 1.35,
+      "desc": "Sıcaklığa ve Darbeye Dirençli Fonksiyonel Parça"
+    },
+    {
+      "id": "asa",
+      "name": "ASA Filament",
+      "rate": 1.4,
+      "desc": "UV & Dış Hava Şartlarına Ultra Dayanıklı Endüstriyel"
+    },
+    {
+      "id": "tpu",
+      "name": "TPU Esnek",
+      "rate": 1.6,
+      "desc": "Kauçuk benzeri, bükülebilir ve kırılmaz esnek parça"
+    }
   ],
   "gallery": [
     {
