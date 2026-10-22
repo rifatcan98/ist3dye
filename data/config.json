@@ -12,7 +12,7 @@
     "workshopAddress": "İstanbul / Bahçelievler, Türkiye"
   },
   "workingHours": {
-    "mode": "manual_active",
+    "mode": "auto",
     "weekdayStart": "09:00",
     "weekdayEnd": "19:00",
     "saturdayStart": "10:00",
