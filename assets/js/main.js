@@ -181,13 +181,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalPrice = Math.round(unitPrice * qty * discount);
 
     // Update UI Elements
-    if (calculatedPriceEl) calculatedPriceEl.textContent = `${totalPrice.toLocaleString('tr-TR')} ₺`;
+    if (calculatedPriceEl) {
+      calculatedPriceEl.innerHTML = `${totalPrice.toLocaleString('tr-TR')} <span class="text-xl sm:text-2xl font-black text-white ml-1.5 inline-block drop-shadow">TL</span>`;
+    }
     if (quoteGramsEl) quoteGramsEl.textContent = weightText;
     if (quoteDimsEl) quoteDimsEl.textContent = `${currentModel.x}×${currentModel.y}×${currentModel.z} mm`;
     if (quoteTimeEl) quoteTimeEl.textContent = printTimeText;
     if (quoteUnitPriceEl) {
       const discountText = discount < 1 ? ` (%${Math.round((1 - discount) * 100)} İndirim)` : '';
-      quoteUnitPriceEl.textContent = `${unitPrice} ₺ / adet${discountText}`;
+      quoteUnitPriceEl.textContent = `${unitPrice} TL / adet${discountText}`;
     }
 
     if (modelStatusDot) {
@@ -541,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
 🔢 *Adet:* ${pricing.qty} adet
 📝 *Müşteri Notu:* ${note}${ndaText}${oversizeNote}
 ---------------------------------------
-💰 *Tahmini Toplam Tutar:* ${pricing.totalPrice.toLocaleString('tr-TR')} ₺
+💰 *Tahmini Toplam Tutar:* ${pricing.totalPrice.toLocaleString('tr-TR')} TL
 ---------------------------------------
 Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif almak istiyorum. Dosyamı göndermek üzere bilgi verir misiniz?`;
 
