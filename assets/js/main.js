@@ -23,10 +23,41 @@ document.addEventListener('DOMContentLoaded', () => {
     workshopAddress: 'İstanbul / Bahçelievler, Türkiye'
   };
 
+  let activeConfig = { ...DEFAULT_CONFIG };
+
   function getSiteConfig() {
     const saved = localStorage.getItem('ist3dye_config');
-    return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : DEFAULT_CONFIG;
+    return saved ? { ...activeConfig, ...JSON.parse(saved) } : activeConfig;
   }
+
+  // Load centralized config from data/config.json
+  async function loadCentralizedConfig() {
+    try {
+      const res = await fetch('data/config.json?v=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (data.pricing && data.contact) {
+          activeConfig = {
+            ...DEFAULT_CONFIG,
+            ...data.pricing,
+            ...data.contact
+          };
+        }
+        if (data.materials && !localStorage.getItem('ist3dye_materials')) {
+          localStorage.setItem('ist3dye_materials', JSON.stringify(data.materials));
+        }
+        if (data.gallery && !localStorage.getItem('ist3dye_gallery')) {
+          localStorage.setItem('ist3dye_gallery', JSON.stringify(data.gallery));
+        }
+        populateMaterialsFromStorage();
+        populateGalleryFromStorage();
+        calculatePrice();
+      }
+    } catch (e) {
+      console.warn('Centralized config could not be loaded, using defaults:', e);
+    }
+  }
+  loadCentralizedConfig();
 
   // Material densities (g/cm³) for accurate weight calculation
   const MATERIAL_DENSITIES = {
@@ -687,19 +718,84 @@ Merhaba, web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletm
     }
   });
 
+  // ================= CONTACT FORM & DUAL ACTIONS =================
+  const btnContactWhatsApp = document.getElementById('btnContactWhatsApp');
+  const contactForm = document.getElementById('contactForm');
+  const submitContactBtn = document.getElementById('submitContactBtn');
+  const contactStatus = document.getElementById('contactStatus');
+
+  // 1. Action: Direct WhatsApp Quote & Message
+  btnContactWhatsApp?.addEventListener('click', () => {
+    const name = document.getElementById('contactName')?.value.trim();
+    const phone = document.getElementById('contactPhone')?.value.trim();
+    const email = document.getElementById('contactEmail')?.value.trim();
+    const message = document.getElementById('contactMessage')?.value.trim();
+
+    if (!name || !phone) {
+      alert('Lütfen en azından Adınızı ve Telefon numaranızı girin.');
+      document.getElementById('contactName')?.focus();
+      return;
+    }
+
+    const pricing = calculatePrice();
+    const cfg = getSiteConfig();
+    const speedText = (selectedSpeed === 'express') ? 'Ekspres (24 Saat)' : 'Standart (2-3 Gün)';
+    const ndaText = ndaCheckbox?.checked ? 'Evet (İmzalı Protokol)' : 'Hayır';
+
+    const waMsg = 
+`*ist3Dye.com - Hızlı İletişim ve Teklif Talebi*
+════════════════════════════
+👤 *Müşteri:* ${name}
+📞 *Telefon:* ${phone}
+✉️ *E-posta:* ${email || 'Belirtilmedi'}
+📝 *Mesaj / Not:* ${message || 'Belirtilmedi'}
+────────────────────────────
+📦 *3D Model:* ${currentModel.hasFile ? `${currentModel.name} (${currentModel.format})` : 'Model WhatsApp üzerinden iletilecek'}
+${currentModel.hasFile ? `📐 *Boyut:* ${currentModel.x} x ${currentModel.y} x ${currentModel.z} mm\n⚖️ *Tahmini Ağırlık:* ${pricing.weightText}\n⏱️ *Baskı Süresi:* ${pricing.printTimeText}` : ''}
+⚙️ *Malzeme:* ${materialSelect.options[materialSelect.selectedIndex]?.text.split('(')[0].trim()}
+🎯 *Doluluk (Infill):* %${selectedInfill}
+📏 *Katman Kalitesi:* ${qualitySelect.options[qualitySelect.selectedIndex]?.text}
+🎨 *Renk:* ${colorSelect.value}
+⚡ *Üretim Hızı:* ${speedText}
+🔒 *Gizlilik (NDA):* ${ndaText}
+🔢 *Adet:* ${pricing.qty} adet
+💰 *Tahmini Fiyat:* ${pricing.totalPriceText || `${pricing.totalPrice} TL`}
+════════════════════════════
+Merhaba, web sitenizdeki formu doldurdum. Bilgilerim yukarıdaki gibidir. 3D baskı dosyamı WhatsApp üzerinden ekleyerek iletmek istiyorum.`;
+
+    const encoded = encodeURIComponent(waMsg);
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cfg.whatsappPhone || '905000000000'}&text=${encoded}`;
+    window.open(whatsappUrl, '_blank');
+  });
+
   // Check for successful form submit return
   if (window.location.search.includes('success=1')) {
-    const contactStatus = document.getElementById('contactStatus');
     if (contactStatus) {
       contactStatus.textContent = '✓ Talebiniz ve bilgileriniz başarıyla bize ulaştı! En kısa sürede sizinle iletişime geçeceğiz.';
       contactStatus.className = 'text-sm text-center text-emerald-400 font-semibold block p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30';
     }
   }
 
-  // Sync 3D quote selections into form before submit
-  const contactForm = document.getElementById('contactForm');
-  contactForm?.addEventListener('submit', () => {
+  // 2. Action: Robust Email Form Submit with Timeout & Fallback
+  contactForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('contactName')?.value.trim();
+    const phone = document.getElementById('contactPhone')?.value.trim();
+    const email = document.getElementById('contactEmail')?.value.trim();
+    const message = document.getElementById('contactMessage')?.value.trim();
+
+    if (!name || !phone) {
+      alert('Lütfen Adınızı ve Telefon numaranızı girin.');
+      return;
+    }
+
     const pricing = calculatePrice();
+    const cfg = getSiteConfig();
+    const speedText = (selectedSpeed === 'express') ? 'Ekspres (24s)' : 'Standart (2-3g)';
+    const ndaText = ndaCheckbox?.checked ? ' [NDA Talep Edildi]' : '';
+
+    // Populate hidden fields
     const hiddenModel = document.getElementById('hiddenModelName');
     const hiddenMat = document.getElementById('hiddenMaterial');
     const hiddenInf = document.getElementById('hiddenInfill');
@@ -708,14 +804,85 @@ Merhaba, web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletm
     const hiddenQuantity = document.getElementById('hiddenQty');
     const hiddenPr = document.getElementById('hiddenPrice');
 
-    const ndaText = ndaCheckbox?.checked ? ' [NDA Talep Edildi]' : '';
-    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ${pricing.weightText})${ndaText}` : 'Model yüklenmedi';
+    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ${pricing.weightText})${ndaText}` : 'Model iletilmedi';
     if (hiddenMat) hiddenMat.value = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
     if (hiddenInf) hiddenInf.value = `%${selectedInfill}`;
     if (hiddenQual) hiddenQual.value = qualitySelect.options[qualitySelect.selectedIndex].text;
     if (hiddenCol) hiddenCol.value = colorSelect.value;
     if (hiddenQuantity) hiddenQuantity.value = pricing.qty;
     if (hiddenPr) hiddenPr.value = `${pricing.totalPrice} TL`;
+
+    if (submitContactBtn) {
+      submitContactBtn.disabled = true;
+      submitContactBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Gönderiliyor...</span>
+      `;
+    }
+
+    // Try submitting with 4-second timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const formData = new FormData(contactForm);
+
+    try {
+      const response = await fetch(contactForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (submitContactBtn) {
+        submitContactBtn.disabled = false;
+        submitContactBtn.innerHTML = `<span><i data-lucide="mail" class="w-4 h-4 inline-block mr-1"></i> E-posta Olarak Gönder</span>`;
+      }
+
+      if (response.ok) {
+        contactStatus.textContent = '✓ Talebiniz başarıyla alındı! Ekibimiz en kısa sürede sizinle iletişime geçecektir.';
+        contactStatus.className = 'text-xs text-center text-emerald-400 block pt-2 font-medium';
+        contactForm.reset();
+      } else {
+        throw new Error('Form servisi yanıt vermedi');
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (submitContactBtn) {
+        submitContactBtn.disabled = false;
+        submitContactBtn.innerHTML = `<span><i data-lucide="mail" class="w-4 h-4 inline-block mr-1"></i> E-posta Olarak Gönder</span>`;
+      }
+
+      // Safe, zero-hanging fallback
+      const mailSubject = encodeURIComponent(`ist3Dye.com - Teklif Talebi: ${name}`);
+      const mailBody = encodeURIComponent(
+`Müşteri: ${name}
+Telefon: ${phone}
+E-posta: ${email || 'Belirtilmedi'}
+Mesaj: ${message || 'Belirtilmedi'}
+Model: ${currentModel.hasFile ? currentModel.name : 'Model e-posta ekinde iletilecek'}
+Malzeme: ${materialSelect.value.toUpperCase()}
+Doluluk: %${selectedInfill}
+Renk: ${colorSelect.value}
+Adet: ${pricing.qty}
+Tahmini Tutar: ${pricing.totalPrice} TL`
+      );
+      const mailtoUrl = `mailto:${cfg.contactEmail || 'teklif@ist3dye.com'}?subject=${mailSubject}&body=${mailBody}`;
+
+      contactStatus.className = 'text-xs text-center text-slate-300 block pt-3 p-3 rounded-xl bg-slate-900 border border-slate-700 space-y-2';
+      contactStatus.innerHTML = `
+        <p class="text-amber-400 font-medium">Sayfa beklemesi olmaması için talebinizi hemen iletin:</p>
+        <div class="flex flex-col sm:flex-row gap-2 justify-center pt-1">
+          <a href="${mailtoUrl}" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs">E-posta Programı ile Aç</a>
+          <button type="button" onclick="document.getElementById('btnContactWhatsApp')?.click()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs">WhatsApp ile Gönder</button>
+        </div>
+      `;
+    }
+    lucide.createIcons();
   });
 
   // ================= GALLERY FILTER =================

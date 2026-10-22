@@ -1,0 +1,71 @@
+{
+  "pricing": {
+    "baseSetupFee": 35,
+    "baseGramPrice": 2.4,
+    "minOrderPrice": 65,
+    "discount5": 10,
+    "discount10": 15
+  },
+  "contact": {
+    "whatsappPhone": "905000000000",
+    "contactEmail": "teklif@ist3dye.com",
+    "workshopAddress": "İstanbul / Bahçelievler, Türkiye"
+  },
+  "materials": [
+    { "id": "pla", "name": "PLA Standart", "rate": 1.0, "desc": "Ekonomik & Çevre Dostu - Dekoratif ve Prototip" },
+    { "id": "petg", "name": "PETG Dayanıklı", "rate": 1.25, "desc": "Yüksek Mukavemet & Kimyasal ve Dış Ortam Direnci" },
+    { "id": "abs", "name": "ABS Endüstriyel", "rate": 1.35, "desc": "Sıcaklığa ve Darbeye Dirençli Fonksiyonel Parça" },
+    { "id": "asa", "name": "ASA Filament", "rate": 1.40, "desc": "UV & Dış Hava Şartlarına Ultra Dayanıklı Endüstriyel" },
+    { "id": "tpu", "name": "TPU Esnek", "rate": 1.60, "desc": "Kauçuk benzeri, bükülebilir ve kırılmaz esnek parça" }
+  ],
+  "gallery": [
+    {
+      "id": 1,
+      "title": "Yüksek Torklu Helisel Dişli",
+      "category": "muhendislik",
+      "material": "PETG - %60 Infill",
+      "specs": "Baskı Süresi: 6 Saat | Katman: 0.16 mm",
+      "desc": "Özel paketleme makinesi için aşınmaya ve yüksek torka dayanıklı yedek parça üretimi."
+    },
+    {
+      "id": 2,
+      "title": "Yüksek Çözünürlüklü Karakter Modeli",
+      "category": "figur",
+      "material": "Hassas PLA+",
+      "specs": "Baskı Süresi: 9 Saat | Katman: 0.12 mm",
+      "desc": "Özel destek yapıları ve 0.12mm ince katman yüksekliği ile hassas FDM yüzey kalitesi."
+    },
+    {
+      "id": 3,
+      "title": "1:100 Ölçekli Konut Projesi",
+      "category": "mimari",
+      "material": "Mat Beyaz PLA+",
+      "specs": "Baskı Süresi: 18 Saat | Katman: 0.16 mm",
+      "desc": "Mimarlık ofisi sunumu için modüler olarak basılıp birleştirilen detaylı bina maketi."
+    },
+    {
+      "id": 4,
+      "title": "IoT Cihaz Muhafazası (Enclosure)",
+      "category": "prototip",
+      "material": "ABS Dayanıklı",
+      "specs": "Baskı Süresi: 4.5 Saat | Katman: 0.20 mm",
+      "desc": "Pirinç dişli soket eklemeli, geçmeli kapak sistemine sahip elektronik kutusu prototipi."
+    },
+    {
+      "id": 5,
+      "title": "FPV Drone Titreşim Sönümleyici",
+      "category": "muhendislik",
+      "material": "TPU Esnek",
+      "specs": "Baskı Süresi: 3 Saat | Katman: 0.20 mm",
+      "desc": "Düşmelere ve titreşime karşı kırılmaz, esnek kauçuksu TPU filament ile basılmış kamera yuvası."
+    },
+    {
+      "id": 6,
+      "title": "Parametrik Geometrik Vazo",
+      "category": "figur",
+      "material": "Silk Bronz PLA",
+      "specs": "Baskı Süresi: 5 Saat | Katman: 0.24 mm",
+      "desc": "İpek parlaklığında bronz filament ile tek parça spiral vazo modu üretimi."
+    }
+  ]
+}

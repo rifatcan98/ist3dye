@@ -481,4 +481,163 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => notice.classList.add('hidden'), 3000);
   });
 
+  // ================= TAB 5: CENTRALIZED CONFIG & PUBLISH =================
+  const githubTokenInput = document.getElementById('cfgGithubToken');
+  const btnSaveGithubToken = document.getElementById('btnSaveGithubToken');
+  const btnPublishLive = document.getElementById('btnPublishLive');
+  const publishStatus = document.getElementById('publishStatus');
+  const btnDownloadConfig = document.getElementById('btnDownloadConfig');
+  const btnCopyConfig = document.getElementById('btnCopyConfig');
+  const copyNotice = document.getElementById('copyNotice');
+
+  // Load saved token
+  if (githubTokenInput) {
+    githubTokenInput.value = localStorage.getItem('ist3dye_github_token') || '';
+  }
+
+  btnSaveGithubToken?.addEventListener('click', () => {
+    const token = githubTokenInput.value.trim();
+    if (token) {
+      localStorage.setItem('ist3dye_github_token', token);
+      alert('GitHub Token tarayıcınızda başarıyla kaydedildi.');
+    } else {
+      localStorage.removeItem('ist3dye_github_token');
+      alert('GitHub Token kaldırıldı.');
+    }
+  });
+
+  function exportFullConfig() {
+    const cfg = getConfig();
+    const mats = getMaterials();
+    const gal = getGallery();
+
+    return {
+      pricing: {
+        baseSetupFee: cfg.baseSetupFee,
+        baseGramPrice: cfg.baseGramPrice,
+        minOrderPrice: cfg.minOrderPrice,
+        discount5: cfg.discount5,
+        discount10: cfg.discount10
+      },
+      contact: {
+        whatsappPhone: cfg.whatsappPhone,
+        contactEmail: cfg.contactEmail,
+        workshopAddress: cfg.workshopAddress
+      },
+      materials: mats,
+      gallery: gal
+    };
+  }
+
+  // Publish to GitHub -> Cloudflare
+  btnPublishLive?.addEventListener('click', async () => {
+    const token = githubTokenInput?.value.trim() || localStorage.getItem('ist3dye_github_token');
+    if (!token) {
+      alert('Lütfen önce GitHub Access Token girin ve Kaydet butonuna basın.');
+      githubTokenInput?.focus();
+      return;
+    }
+
+    btnPublishLive.disabled = true;
+    btnPublishLive.innerHTML = `
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      <span>GitHub ve Cloudflare'e Aktarılıyor...</span>
+    `;
+
+    publishStatus.classList.remove('hidden');
+    publishStatus.className = 'text-xs p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-300';
+    publishStatus.textContent = 'GitHub deposuna bağlanılıyor ve dosya hazırlanıyor...';
+
+    const repo = 'rifatcan98/ist3dye';
+    const filePath = 'data/config.json';
+    const fullConfig = exportFullConfig();
+    const contentStr = JSON.stringify(fullConfig, null, 2);
+    const base64Content = btoa(unescape(encodeURIComponent(contentStr)));
+
+    try {
+      // 1. Get current SHA if exists
+      let sha = '';
+      const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+
+      if (getRes.ok) {
+        const fileInfo = await getRes.json();
+        sha = fileInfo.sha;
+      }
+
+      // 2. Put file
+      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Admin Panel: Canlı fiyat, malzeme ve vitrin yapılandırması güncellendi',
+          content: base64Content,
+          sha: sha || undefined
+        })
+      });
+
+      btnPublishLive.disabled = false;
+      btnPublishLive.innerHTML = `
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+        <span>Tüm Dünyaya Yayınla (Cloudflare Canlısı)</span>
+      `;
+      lucide.createIcons();
+
+      if (putRes.ok) {
+        publishStatus.className = 'text-xs p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium space-y-1';
+        publishStatus.innerHTML = `
+          <p class="font-bold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Başarıyla GitHub'a Aktarıldı!</p>
+          <p class="text-[11px] text-slate-400">Cloudflare Pages yaklaşık 15-20 saniye içinde sitenizi otomatik olarak tüm dünyada güncelleyecektir.</p>
+        `;
+        lucide.createIcons();
+      } else {
+        const errData = await putRes.json();
+        publishStatus.className = 'text-xs p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium';
+        publishStatus.textContent = 'Hata oluştu: ' + (errData.message || 'Yetkilendirme başarısız oldu.');
+      }
+    } catch (err) {
+      console.error(err);
+      btnPublishLive.disabled = false;
+      btnPublishLive.innerHTML = `
+        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+        <span>Tüm Dünyaya Yayınla (Cloudflare Canlısı)</span>
+      `;
+      lucide.createIcons();
+      publishStatus.className = 'text-xs p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium';
+      publishStatus.textContent = 'Bağlantı hatası: GitHub sunucusuna ulaşılamadı.';
+    }
+  });
+
+  // Download config.json
+  btnDownloadConfig?.addEventListener('click', () => {
+    const fullConfig = exportFullConfig();
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullConfig, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute('href', dataStr);
+    dlAnchor.setAttribute('download', 'config.json');
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+  });
+
+  // Copy config JSON
+  btnCopyConfig?.addEventListener('click', () => {
+    const fullConfig = exportFullConfig();
+    navigator.clipboard.writeText(JSON.stringify(fullConfig, null, 2)).then(() => {
+      copyNotice.classList.remove('hidden');
+      setTimeout(() => copyNotice.classList.add('hidden'), 2500);
+    });
+  });
+
 });
