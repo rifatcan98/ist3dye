@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function syncWithServerConfig() {
     try {
-      const res = await fetch('data/config.json?v=' + Date.now());
+      const res = await fetch('/data/config.json?v=' + Date.now());
       if (res.ok) {
         const data = await res.json();
         const localCfg = getConfig();

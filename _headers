@@ -6,8 +6,6 @@
   Content-Security-Policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://formsubmit.co
   Strict-Transport-Security: max-age=31536000; includeSubDomains
 
-/atolye-kontrol
+/atolye-kontrol/*
   X-Robots-Tag: noindex, nofollow, noarchive
-
-/atolye-kontrol.html
-  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store
