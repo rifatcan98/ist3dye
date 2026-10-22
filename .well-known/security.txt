@@ -1,0 +1,6 @@
+# security.txt for ist3dye.com (RFC 9116)
+Contact: mailto:teklif@ist3dye.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: tr, en
+Canonical: https://ist3dye.com/.well-known/security.txt
+Policy: https://ist3dye.com
