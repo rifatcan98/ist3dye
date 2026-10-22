@@ -136,6 +136,10 @@
           <i data-lucide="image" class="w-4 h-4"></i>
           <span>Örnek Baskılar (Galeri)</span>
         </button>
+        <button class="tab-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 flex items-center gap-2" data-tab="saatler">
+          <i data-lucide="clock" class="w-4 h-4 text-emerald-400"></i>
+          <span>Çalışma Saatleri & Canlı Destek</span>
+        </button>
         <button class="tab-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 flex items-center gap-2" data-tab="ayarlar">
           <i data-lucide="settings" class="w-4 h-4"></i>
           <span>Genel Bilgiler & Güvenlik</span>
@@ -251,6 +255,190 @@
           <!-- Gallery List Grid -->
           <div id="adminGalleryList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Dynamically populated via JS -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB: ÇALIŞMA SAATLERİ & CANLI DESTEK -->
+      <section id="tab-saatler" class="tab-content hidden space-y-6">
+        <div class="bg-slate-900/60 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-xs font-semibold mb-2">
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                <span>Canlı Destek & Atölye Çalışma Saatleri</span>
+              </div>
+              <h2 class="text-xl font-display font-bold text-white">Canlı Destek Durumu & Mesai Yönetimi</h2>
+              <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                İstediğiniz zaman otomatik çalışma saatlerini devre dışı bırakıp canlı desteği manuel olarak sürekli <strong>Aktif (Yeşil)</strong> veya <strong>Pasif (Kırmızı)</strong> yapabilirsiniz.
+              </p>
+            </div>
+            
+            <!-- Canlı Önizleme Rozeti -->
+            <div id="adminStatusPreview" class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3 shrink-0">
+              <span id="previewDot" class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <div>
+                <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Sitedeki Canlı Görünüm</div>
+                <div id="previewTitle" class="text-xs font-bold text-white">Canlı Destek Aktif</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mod Seçimi: 3 Kart -->
+          <div class="space-y-3">
+            <label class="block text-xs font-bold text-slate-200 uppercase tracking-wider">Canlı Destek Çalışma Modu</label>
+            <div class="grid sm:grid-cols-3 gap-4">
+              
+              <!-- Otomatik Mod -->
+              <label class="relative flex flex-col p-4 rounded-2xl border cursor-pointer transition-all mode-card bg-slate-950/80 border-slate-800 hover:border-brand-500" id="modeCardAuto">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                    <span class="text-xs font-bold text-white">🤖 Otomatik Mod</span>
+                  </div>
+                  <input type="radio" name="workingMode" value="auto" class="accent-brand-500">
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Mesai saatleri içindeyken <strong>Yeşil Aktif</strong>, mesai saatleri dışında (gece, hafta sonu) otomatik olarak <strong>Kırmızı Pasif</strong> olur.
+                </p>
+              </label>
+
+              <!-- Manuel Zorla Aktif -->
+              <label class="relative flex flex-col p-4 rounded-2xl border cursor-pointer transition-all mode-card bg-slate-950/80 border-slate-800 hover:border-emerald-500" id="modeCardActive">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-emerald-400">🟢 Manuel Zorla AKTİF</span>
+                  </div>
+                  <input type="radio" name="workingMode" value="manual_active" class="accent-emerald-500">
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Saat veya gün fark etmeksizin (gece dahi olsa) sitede yeşil ışık ve <strong>"Canlı Destek & Atölye Hattı Aktif"</strong> yazar. Siz tekrar kapatana kadar aktif kalır.
+                </p>
+              </label>
+
+              <!-- Manuel Zorla Pasif -->
+              <label class="relative flex flex-col p-4 rounded-2xl border cursor-pointer transition-all mode-card bg-slate-950/80 border-slate-800 hover:border-rose-500" id="modeCardPassive">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.9)]"></span>
+                    <span class="text-xs font-bold text-rose-400">🔴 Manuel Zorla PASİF</span>
+                  </div>
+                  <input type="radio" name="workingMode" value="manual_passive" class="accent-rose-500">
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed">
+                  Gündüz mesai saatinde olsanız dahi (yoğunluk, tatil, atölye kapalı vb.) sitede kırmızı ışık ve <strong>"Canlı Destek Hattı Pasif"</strong> yazar.
+                </p>
+              </label>
+
+            </div>
+          </div>
+
+          <!-- Haftalık Mesai Saatleri Planı -->
+          <div class="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-brand-400"></i>
+                <span>Standart Haftalık Mesai Saatleri (Otomatik Mod İçin)</span>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">Otomatik mod seçiliyken sistemin baz alacağı saat aralıkları (İstanbul Saati GMT+3).</p>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-4">
+              <!-- Hafta İçi -->
+              <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                <span class="text-xs font-bold text-white block">Hafta İçi (Pzt - Cuma)</span>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Başlangıç</label>
+                    <input type="time" id="cfgWeekdayStart" value="09:00" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  </div>
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Bitiş</label>
+                    <input type="time" id="cfgWeekdayEnd" value="19:00" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cumartesi -->
+              <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                <span class="text-xs font-bold text-white block">Cumartesi</span>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Başlangıç</label>
+                    <input type="time" id="cfgSaturdayStart" value="10:00" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  </div>
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Bitiş</label>
+                    <input type="time" id="cfgSaturdayEnd" value="16:00" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pazar -->
+              <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white">Pazar Günü</span>
+                  <label class="flex items-center gap-1.5 text-[11px] text-slate-400 cursor-pointer">
+                    <input type="checkbox" id="cfgSundayOpen" class="rounded accent-brand-500">
+                    <span>Açık</span>
+                  </label>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Başlangıç</label>
+                    <input type="time" id="cfgSundayStart" value="10:00" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  </div>
+                  <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Bitiş</label>
+                    <input type="time" id="cfgSundayEnd" value="16:00" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Özel Bildirim Metinleri -->
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                <span>Aktif Durum Bildirim Metni</span>
+              </label>
+              <input type="text" id="cfgActiveNote" value="Genellikle 15 dakika içinde yanıt verilir" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              <span class="text-[10px] text-slate-500">Yeşil ışık yandığında rozetlerde ve kartta görünen yazı.</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <label class="block text-xs font-semibold text-rose-400 flex items-center gap-1.5">
+                <i data-lucide="moon" class="w-3.5 h-3.5"></i>
+                <span>Pasif / Mesai Dışı Bildirim Metni</span>
+              </label>
+              <input type="text" id="cfgPassiveNote" value="Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+              <span class="text-[10px] text-slate-500">Kırmızı ışık yandığında rozetlerde ve kartta görünen yazı.</span>
+            </div>
+          </div>
+
+          <!-- Kaydet & Canlıya Yayınla Butonları -->
+          <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-800">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+              <button id="saveWorkingHoursBtn" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-brand-600/30 transition-all">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Saat Ayarlarını Kaydet</span>
+              </button>
+              
+              <button id="publishWorkingHoursBtn" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all">
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                <span>Kaydet & Tüm Dünyaya Yayınla</span>
+              </button>
+            </div>
+
+            <span id="workingHoursSaveNotice" class="text-xs text-emerald-400 font-medium hidden">✓ Saat ve canlı destek ayarları başarıyla kaydedildi!</span>
           </div>
 
         </div>

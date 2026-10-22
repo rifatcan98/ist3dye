@@ -10,6 +10,19 @@ function escapeHtml(value) {
 // Admin Panel Logic for ist3Dye.com
 
 // ================= DEFAULT DATA =================
+const DEFAULT_WORKING_HOURS = {
+  mode: 'auto',
+  weekdayStart: '09:00',
+  weekdayEnd: '19:00',
+  saturdayStart: '10:00',
+  saturdayEnd: '16:00',
+  sundayOpen: false,
+  sundayStart: '10:00',
+  sundayEnd: '16:00',
+  activeNote: 'Genellikle 15 dakika içinde yanıt verilir',
+  passiveNote: 'Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır'
+};
+
 const DEFAULT_CONFIG = {
   adminUsername: 'Rıfatcan',
   adminPassword: '123Rifatcan.123',
@@ -20,7 +33,8 @@ const DEFAULT_CONFIG = {
   discount10: 15,
   whatsappPhone: '905000000000',
   contactEmail: 'teklif@ist3dye.com',
-  workshopAddress: 'İstanbul / Bahçelievler, Türkiye'
+  workshopAddress: 'İstanbul / Bahçelievler, Türkiye',
+  workingHours: { ...DEFAULT_WORKING_HOURS }
 };
 
 const DEFAULT_MATERIALS = [
@@ -93,6 +107,11 @@ function getConfig() {
       console.error('Config parsing error:', e);
     }
   }
+
+  config.workingHours = {
+    ...DEFAULT_WORKING_HOURS,
+    ...(config.workingHours || {})
+  };
 
   // Automatically migrate legacy default credentials
   if (!config.adminUsername || config.adminUsername === 'admin') {
@@ -232,7 +251,36 @@ document.addEventListener('DOMContentLoaded', () => {
     loginScreen.classList.add('hidden');
     adminDashboard.classList.remove('hidden');
     loadAllAdminData();
+    syncWithServerConfig();
     lucide.createIcons();
+  }
+
+  async function syncWithServerConfig() {
+    try {
+      const res = await fetch('data/config.json?v=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        const localCfg = getConfig();
+        if (data.pricing && data.contact) {
+          const merged = {
+            ...localCfg,
+            ...data.pricing,
+            ...data.contact,
+            workingHours: { ...DEFAULT_WORKING_HOURS, ...(data.workingHours || {}) }
+          };
+          saveConfig(merged);
+        }
+        if (data.materials && !localStorage.getItem('ist3dye_materials')) {
+          saveMaterials(data.materials);
+        }
+        if (data.gallery && !localStorage.getItem('ist3dye_gallery')) {
+          saveGallery(data.gallery);
+        }
+        loadAllAdminData();
+      }
+    } catch (e) {
+      console.warn('Server config sync notice:', e);
+    }
   }
 
   // Tabs Switcher
@@ -271,6 +319,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('cfgAdminUsername')) {
       document.getElementById('cfgAdminUsername').value = cfg.adminUsername || 'Rıfatcan';
     }
+
+    // Working Hours & Support Status
+    const wh = cfg.workingHours || DEFAULT_WORKING_HOURS;
+    const mode = wh.mode || 'auto';
+
+    document.querySelectorAll('input[name="workingMode"]').forEach(radio => {
+      radio.checked = (radio.value === mode);
+    });
+    updateWorkingHoursModeUI(mode);
+
+    if (document.getElementById('cfgWeekdayStart')) document.getElementById('cfgWeekdayStart').value = wh.weekdayStart || '09:00';
+    if (document.getElementById('cfgWeekdayEnd')) document.getElementById('cfgWeekdayEnd').value = wh.weekdayEnd || '19:00';
+    if (document.getElementById('cfgSaturdayStart')) document.getElementById('cfgSaturdayStart').value = wh.saturdayStart || '10:00';
+    if (document.getElementById('cfgSaturdayEnd')) document.getElementById('cfgSaturdayEnd').value = wh.saturdayEnd || '16:00';
+    if (document.getElementById('cfgSundayOpen')) document.getElementById('cfgSundayOpen').checked = !!wh.sundayOpen;
+    if (document.getElementById('cfgSundayStart')) document.getElementById('cfgSundayStart').value = wh.sundayStart || '10:00';
+    if (document.getElementById('cfgSundayEnd')) document.getElementById('cfgSundayEnd').value = wh.sundayEnd || '16:00';
+    if (document.getElementById('cfgActiveNote')) document.getElementById('cfgActiveNote').value = wh.activeNote || 'Genellikle 15 dakika içinde yanıt verilir';
+    if (document.getElementById('cfgPassiveNote')) document.getElementById('cfgPassiveNote').value = wh.passiveNote || 'Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır';
 
     renderMaterialsTable();
     renderGalleryGrid();
@@ -481,6 +548,250 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => notice.classList.add('hidden'), 3000);
   });
 
+  // ================= TAB: WORKING HOURS & LIVE SUPPORT =================
+  function updateWorkingHoursModeUI(selectedMode) {
+    const cardAuto = document.getElementById('modeCardAuto');
+    const cardActive = document.getElementById('modeCardActive');
+    const cardPassive = document.getElementById('modeCardPassive');
+
+    // Reset base styles
+    [cardAuto, cardActive, cardPassive].forEach(c => {
+      if (!c) return;
+      c.classList.remove(
+        'border-brand-500', 'bg-brand-500/10', 'ring-1', 'ring-brand-500',
+        'border-emerald-500', 'bg-emerald-500/10', 'ring-emerald-500',
+        'border-rose-500', 'bg-rose-500/10', 'ring-rose-500'
+      );
+      c.classList.add('border-slate-800', 'bg-slate-950/80');
+    });
+
+    let effectiveActive = false;
+
+    if (selectedMode === 'manual_active') {
+      effectiveActive = true;
+      if (cardActive) {
+        cardActive.classList.remove('border-slate-800', 'bg-slate-950/80');
+        cardActive.classList.add('border-emerald-500', 'bg-emerald-500/10', 'ring-1', 'ring-emerald-500');
+      }
+    } else if (selectedMode === 'manual_passive') {
+      effectiveActive = false;
+      if (cardPassive) {
+        cardPassive.classList.remove('border-slate-800', 'bg-slate-950/80');
+        cardPassive.classList.add('border-rose-500', 'bg-rose-500/10', 'ring-1', 'ring-rose-500');
+      }
+    } else {
+      // Auto mode
+      if (cardAuto) {
+        cardAuto.classList.remove('border-slate-800', 'bg-slate-950/80');
+        cardAuto.classList.add('border-brand-500', 'bg-brand-500/10', 'ring-1', 'ring-brand-500');
+      }
+
+      // Check current Istanbul time
+      const now = new Date();
+      const trTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+      const day = trTime.getDay();
+      const currentTime = trTime.getHours() + trTime.getMinutes() / 60;
+      
+      const wh = getConfig().workingHours || DEFAULT_WORKING_HOURS;
+      function parseH(str, def) {
+        if (!str) return def;
+        const p = str.split(':');
+        return (parseInt(p[0], 10) || def) + (parseInt(p[1], 10) || 0) / 60;
+      }
+      const wStart = parseH(wh.weekdayStart, 9.0);
+      const wEnd = parseH(wh.weekdayEnd, 19.0);
+      const sStart = parseH(wh.saturdayStart, 10.0);
+      const sEnd = parseH(wh.saturdayEnd, 16.0);
+      const suStart = parseH(wh.sundayStart, 10.0);
+      const suEnd = parseH(wh.sundayEnd, 16.0);
+
+      if (day >= 1 && day <= 5 && currentTime >= wStart && currentTime < wEnd) {
+        effectiveActive = true;
+      } else if (day === 6 && currentTime >= sStart && currentTime < sEnd) {
+        effectiveActive = true;
+      } else if (day === 0 && wh.sundayOpen && currentTime >= suStart && currentTime < suEnd) {
+        effectiveActive = true;
+      } else {
+        effectiveActive = false;
+      }
+    }
+
+    const previewDot = document.getElementById('previewDot');
+    const previewTitle = document.getElementById('previewTitle');
+
+    if (previewDot) {
+      if (effectiveActive) {
+        previewDot.innerHTML = `
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        `;
+      } else {
+        previewDot.innerHTML = `
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.95)]"></span>
+        `;
+      }
+    }
+
+    if (previewTitle) {
+      if (effectiveActive) {
+        previewTitle.textContent = selectedMode === 'manual_active' ? 'Canlı Destek Zorla Aktif (Yeşil)' : 'Canlı Destek Aktif (Yeşil)';
+        previewTitle.className = 'text-xs font-bold text-emerald-400';
+      } else {
+        previewTitle.textContent = selectedMode === 'manual_passive' ? 'Canlı Destek Zorla Pasif (Kırmızı)' : 'Canlı Destek Pasif (Kırmızı)';
+        previewTitle.className = 'text-xs font-bold text-rose-400';
+      }
+    }
+  }
+
+  // Click card to select radio
+  document.querySelectorAll('.mode-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        updateWorkingHoursModeUI(radio.value);
+      }
+    });
+  });
+
+  document.querySelectorAll('input[name="workingMode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      updateWorkingHoursModeUI(radio.value);
+    });
+  });
+
+  function getWorkingHoursFromForm() {
+    const selectedMode = document.querySelector('input[name="workingMode"]:checked')?.value || 'auto';
+    return {
+      mode: selectedMode,
+      weekdayStart: document.getElementById('cfgWeekdayStart')?.value || '09:00',
+      weekdayEnd: document.getElementById('cfgWeekdayEnd')?.value || '19:00',
+      saturdayStart: document.getElementById('cfgSaturdayStart')?.value || '10:00',
+      saturdayEnd: document.getElementById('cfgSaturdayEnd')?.value || '16:00',
+      sundayOpen: !!document.getElementById('cfgSundayOpen')?.checked,
+      sundayStart: document.getElementById('cfgSundayStart')?.value || '10:00',
+      sundayEnd: document.getElementById('cfgSundayEnd')?.value || '16:00',
+      activeNote: document.getElementById('cfgActiveNote')?.value.trim() || 'Genellikle 15 dakika içinde yanıt verilir',
+      passiveNote: document.getElementById('cfgPassiveNote')?.value.trim() || 'Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır'
+    };
+  }
+
+  // Save Working Hours Locally
+  document.getElementById('saveWorkingHoursBtn')?.addEventListener('click', () => {
+    const cfg = getConfig();
+    cfg.workingHours = getWorkingHoursFromForm();
+    saveConfig(cfg);
+
+    const notice = document.getElementById('workingHoursSaveNotice');
+    if (notice) {
+      notice.classList.remove('hidden');
+      setTimeout(() => notice.classList.add('hidden'), 3500);
+    }
+    updateWorkingHoursModeUI(cfg.workingHours.mode);
+  });
+
+  // ================= SHARED GITHUB PUBLISHER =================
+  async function publishConfigToGitHub(commitMessage = 'Admin Panel: Yapılandırma güncellendi') {
+    const githubTokenInput = document.getElementById('cfgGithubToken');
+    const token = githubTokenInput?.value.trim() || localStorage.getItem('ist3dye_github_token');
+    if (!token) {
+      return {
+        success: false,
+        noToken: true,
+        error: 'GitHub Access Token bulunamadı. Lütfen "Canlıya Yayınla" sekmesinden tokenınızı bir defaya mahsus kaydedin.'
+      };
+    }
+
+    const repo = 'rifatcan98/ist3dye';
+    const filePath = 'data/config.json';
+    const fullConfig = exportFullConfig();
+    const contentStr = JSON.stringify(fullConfig, null, 2);
+    const base64Content = btoa(unescape(encodeURIComponent(contentStr)));
+
+    try {
+      // 1. Get current SHA if exists
+      let sha = '';
+      const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+
+      if (getRes.ok) {
+        const fileInfo = await getRes.json();
+        sha = fileInfo.sha;
+      }
+
+      // 2. Put file
+      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: commitMessage,
+          content: base64Content,
+          sha: sha || undefined
+        })
+      });
+
+      if (putRes.ok) {
+        return { success: true };
+      } else {
+        const errData = await putRes.json();
+        return { success: false, error: errData.message || 'Yetkilendirme veya yükleme başarısız oldu.' };
+      }
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: 'GitHub sunucusuna ulaşılamadı veya ağ bağlantısı koptu.' };
+    }
+  }
+
+  // Publish from Working Hours tab directly
+  document.getElementById('publishWorkingHoursBtn')?.addEventListener('click', async () => {
+    // 1. Save locally first
+    const cfg = getConfig();
+    cfg.workingHours = getWorkingHoursFromForm();
+    saveConfig(cfg);
+    updateWorkingHoursModeUI(cfg.workingHours.mode);
+
+    const btn = document.getElementById('publishWorkingHoursBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      <span>Canlıya Aktarılıyor...</span>
+    `;
+
+    const modeLabels = {
+      'auto': 'Otomatik Mod 🤖',
+      'manual_active': 'Zorla AKTİF 🟢',
+      'manual_passive': 'Zorla PASİF 🔴'
+    };
+
+    const res = await publishConfigToGitHub(`Admin Panel: Çalışma saatleri ve canlı destek modu güncellendi (${cfg.workingHours.mode})`);
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    if (window.lucide) lucide.createIcons();
+
+    if (res && res.success) {
+      alert(`✓ Başarıyla GitHub ve Cloudflare'e aktarıldı!\n\nSite yaklaşık 15-20 saniye içinde tüm dünyadaki ziyaretçiler için yeni canlı destek durumunu (${modeLabels[cfg.workingHours.mode] || cfg.workingHours.mode}) gösterecektir.`);
+    } else if (res && res.noToken) {
+      alert(res.error);
+      const publishTabBtn = document.querySelector('.tab-btn[data-tab="yayinla"]');
+      if (publishTabBtn) publishTabBtn.click();
+      document.getElementById('cfgGithubToken')?.focus();
+    } else if (res && !res.success) {
+      alert('Yayınlama hatası: ' + res.error);
+    }
+  });
+
   // ================= TAB 5: CENTRALIZED CONFIG & PUBLISH =================
   const githubTokenInput = document.getElementById('cfgGithubToken');
   const btnSaveGithubToken = document.getElementById('btnSaveGithubToken');
@@ -524,6 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contactEmail: cfg.contactEmail,
         workshopAddress: cfg.workshopAddress
       },
+      workingHours: cfg.workingHours || DEFAULT_WORKING_HOURS,
       materials: mats,
       gallery: gal
     };
@@ -551,71 +863,25 @@ document.addEventListener('DOMContentLoaded', () => {
     publishStatus.className = 'text-xs p-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-300';
     publishStatus.textContent = 'GitHub deposuna bağlanılıyor ve dosya hazırlanıyor...';
 
-    const repo = 'rifatcan98/ist3dye';
-    const filePath = 'data/config.json';
-    const fullConfig = exportFullConfig();
-    const contentStr = JSON.stringify(fullConfig, null, 2);
-    const base64Content = btoa(unescape(encodeURIComponent(contentStr)));
+    const res = await publishConfigToGitHub('Admin Panel: Canlı fiyat, malzeme, saat ve vitrin yapılandırması güncellendi');
 
-    try {
-      // 1. Get current SHA if exists
-      let sha = '';
-      const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
+    btnPublishLive.disabled = false;
+    btnPublishLive.innerHTML = `
+      <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+      <span>Tüm Dünyaya Yayınla (Cloudflare Canlısı)</span>
+    `;
+    lucide.createIcons();
 
-      if (getRes.ok) {
-        const fileInfo = await getRes.json();
-        sha = fileInfo.sha;
-      }
-
-      // 2. Put file
-      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: 'Admin Panel: Canlı fiyat, malzeme ve vitrin yapılandırması güncellendi',
-          content: base64Content,
-          sha: sha || undefined
-        })
-      });
-
-      btnPublishLive.disabled = false;
-      btnPublishLive.innerHTML = `
-        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-        <span>Tüm Dünyaya Yayınla (Cloudflare Canlısı)</span>
+    if (res && res.success) {
+      publishStatus.className = 'text-xs p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium space-y-1';
+      publishStatus.innerHTML = `
+        <p class="font-bold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Başarıyla GitHub'a Aktarıldı!</p>
+        <p class="text-[11px] text-slate-400">Cloudflare Pages yaklaşık 15-20 saniye içinde sitenizi otomatik olarak tüm dünyada güncelleyecektir.</p>
       `;
       lucide.createIcons();
-
-      if (putRes.ok) {
-        publishStatus.className = 'text-xs p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium space-y-1';
-        publishStatus.innerHTML = `
-          <p class="font-bold flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4"></i> Başarıyla GitHub'a Aktarıldı!</p>
-          <p class="text-[11px] text-slate-400">Cloudflare Pages yaklaşık 15-20 saniye içinde sitenizi otomatik olarak tüm dünyada güncelleyecektir.</p>
-        `;
-        lucide.createIcons();
-      } else {
-        const errData = await putRes.json();
-        publishStatus.className = 'text-xs p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium';
-        publishStatus.textContent = 'Hata oluştu: ' + (errData.message || 'Yetkilendirme başarısız oldu.');
-      }
-    } catch (err) {
-      console.error(err);
-      btnPublishLive.disabled = false;
-      btnPublishLive.innerHTML = `
-        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
-        <span>Tüm Dünyaya Yayınla (Cloudflare Canlısı)</span>
-      `;
-      lucide.createIcons();
+    } else {
       publishStatus.className = 'text-xs p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-medium';
-      publishStatus.textContent = 'Bağlantı hatası: GitHub sunucusuna ulaşılamadı.';
+      publishStatus.textContent = 'Hata oluştu: ' + (res?.error || 'Yetkilendirme başarısız oldu.');
     }
   });
 

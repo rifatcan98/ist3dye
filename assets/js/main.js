@@ -20,7 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
     discount10: 15,
     whatsappPhone: '905000000000',
     contactEmail: 'teklif@ist3dye.com',
-    workshopAddress: 'İstanbul / Bahçelievler, Türkiye'
+    workshopAddress: 'İstanbul / Bahçelievler, Türkiye',
+    workingHours: {
+      mode: 'auto',
+      weekdayStart: '09:00',
+      weekdayEnd: '19:00',
+      saturdayStart: '10:00',
+      saturdayEnd: '16:00',
+      sundayOpen: false,
+      sundayStart: '10:00',
+      sundayEnd: '16:00',
+      activeNote: 'Genellikle 15 dakika içinde yanıt verilir',
+      passiveNote: 'Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır'
+    }
   };
 
   let activeConfig = { ...DEFAULT_CONFIG };
@@ -90,8 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedLocal = localStorage.getItem('ist3dye_config');
     if (savedLocal) {
       try {
-        activeConfig = { ...DEFAULT_CONFIG, ...JSON.parse(savedLocal) };
+        const parsed = JSON.parse(savedLocal);
+        activeConfig = { 
+          ...DEFAULT_CONFIG, 
+          ...parsed,
+          workingHours: { ...DEFAULT_CONFIG.workingHours, ...(parsed.workingHours || {}) }
+        };
         applyConfigToDOM(activeConfig);
+        updateWorkingHoursStatus();
       } catch (e) {}
     } else {
       applyConfigToDOM(activeConfig);
@@ -106,10 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
           activeConfig = {
             ...DEFAULT_CONFIG,
             ...data.pricing,
-            ...data.contact
+            ...data.contact,
+            workingHours: { ...DEFAULT_CONFIG.workingHours, ...(data.workingHours || {}) }
           };
           localStorage.setItem('ist3dye_config', JSON.stringify(activeConfig));
           applyConfigToDOM(activeConfig);
+          updateWorkingHoursStatus();
         }
         if (data.materials) {
           localStorage.setItem('ist3dye_materials', JSON.stringify(data.materials));
@@ -1129,8 +1149,43 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
     });
   }
 
+  // Helper to parse "HH:MM" to decimal hours (e.g. "09:30" -> 9.5)
+  function parseTimeStrToHours(timeStr, defaultHour) {
+    if (!timeStr || typeof timeStr !== 'string') return defaultHour;
+    const parts = timeStr.split(':');
+    if (parts.length < 2) return defaultHour;
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    if (isNaN(h) || isNaN(m)) return defaultHour;
+    return h + m / 60;
+  }
+
   // ================= DYNAMIC WORKING HOURS & STATUS =================
   function updateWorkingHoursStatus() {
+    const wh = (activeConfig && activeConfig.workingHours) || {
+      mode: 'auto',
+      weekdayStart: '09:00',
+      weekdayEnd: '19:00',
+      saturdayStart: '10:00',
+      saturdayEnd: '16:00',
+      sundayOpen: false,
+      sundayStart: '10:00',
+      sundayEnd: '16:00',
+      activeNote: 'Genellikle 15 dakika içinde yanıt verilir',
+      passiveNote: 'Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır'
+    };
+
+    const mode = wh.mode || 'auto';
+    const weekdayStartStr = wh.weekdayStart || '09:00';
+    const weekdayEndStr = wh.weekdayEnd || '19:00';
+    const saturdayStartStr = wh.saturdayStart || '10:00';
+    const saturdayEndStr = wh.saturdayEnd || '16:00';
+    const sundayOpen = !!wh.sundayOpen;
+    const sundayStartStr = wh.sundayStart || '10:00';
+    const sundayEndStr = wh.sundayEnd || '16:00';
+    const activeNote = wh.activeNote || 'Genellikle 15 dakika içinde yanıt verilir';
+    const passiveNote = wh.passiveNote || 'Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır';
+
     // Current time in Turkey (Europe/Istanbul - UTC+3)
     const now = new Date();
     const trTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
@@ -1139,32 +1194,57 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
     const minutes = trTime.getMinutes();
     const currentTime = hours + minutes / 60;
 
-    let isActive = false;
-    let nextWorkTime = 'Hafta içi 09:00';
+    const weekdayStart = parseTimeStrToHours(weekdayStartStr, 9.0);
+    const weekdayEnd = parseTimeStrToHours(weekdayEndStr, 19.0);
+    const satStart = parseTimeStrToHours(saturdayStartStr, 10.0);
+    const satEnd = parseTimeStrToHours(saturdayEndStr, 16.0);
+    const sunStart = parseTimeStrToHours(sundayStartStr, 10.0);
+    const sunEnd = parseTimeStrToHours(sundayEndStr, 16.0);
 
-    if (day >= 1 && day <= 5) {
-      // Hafta içi: 09:00 - 19:00
-      if (currentTime >= 9.0 && currentTime < 19.0) {
-        isActive = true;
-      } else if (currentTime < 9.0) {
-        nextWorkTime = 'Bugün 09:00';
-      } else if (day === 5) {
-        nextWorkTime = 'Yarın (Cmt) 10:00';
-      } else {
-        nextWorkTime = 'Yarın 09:00';
-      }
-    } else if (day === 6) {
-      // Cumartesi: 10:00 - 16:00
-      if (currentTime >= 10.0 && currentTime < 16.0) {
-        isActive = true;
-      } else if (currentTime < 10.0) {
-        nextWorkTime = 'Bugün 10:00';
-      } else {
-        nextWorkTime = 'Pazartesi 09:00';
-      }
+    let isActive = false;
+    let nextWorkTime = `Hafta içi ${weekdayStartStr}`;
+
+    if (mode === 'manual_active') {
+      // Yönetici manuel olarak zorla AKTİF yaptı
+      isActive = true;
+    } else if (mode === 'manual_passive') {
+      // Yönetici manuel olarak zorla PASİF yaptı
+      isActive = false;
+      nextWorkTime = 'En kısa sürede';
     } else {
-      // Pazar: Kapalı
-      nextWorkTime = 'Pazartesi 09:00';
+      // OTOMATİK MOD: Saat kuralına göre
+      if (day >= 1 && day <= 5) {
+        // Hafta içi
+        if (currentTime >= weekdayStart && currentTime < weekdayEnd) {
+          isActive = true;
+        } else if (currentTime < weekdayStart) {
+          nextWorkTime = `Bugün ${weekdayStartStr}`;
+        } else if (day === 5) {
+          nextWorkTime = `Yarın (Cmt) ${saturdayStartStr}`;
+        } else {
+          nextWorkTime = `Yarın ${weekdayStartStr}`;
+        }
+      } else if (day === 6) {
+        // Cumartesi
+        if (currentTime >= satStart && currentTime < satEnd) {
+          isActive = true;
+        } else if (currentTime < satStart) {
+          nextWorkTime = `Bugün ${saturdayStartStr}`;
+        } else if (sundayOpen) {
+          nextWorkTime = `Yarın (Paz) ${sundayStartStr}`;
+        } else {
+          nextWorkTime = `Pazartesi ${weekdayStartStr}`;
+        }
+      } else {
+        // Pazar
+        if (sundayOpen && currentTime >= sunStart && currentTime < sunEnd) {
+          isActive = true;
+        } else if (sundayOpen && currentTime < sunStart) {
+          nextWorkTime = `Bugün ${sundayStartStr}`;
+        } else {
+          nextWorkTime = `Pazartesi ${weekdayStartStr}`;
+        }
+      }
     }
 
     const dotEl = document.getElementById('supportStatusDot');
@@ -1174,7 +1254,7 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
     const contactBadge = document.getElementById('contactResponseBadge');
 
     if (isActive) {
-      // AKTİF (Mesai Saatleri İçi: Yeşil Yanıp Sönen Işık)
+      // AKTİF (Yeşil Yanıp Sönen Işık)
       if (dotEl) {
         dotEl.innerHTML = `
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -1187,12 +1267,12 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
       }
       if (descEl) {
         descEl.className = 'flex items-center gap-2 text-emerald-400 font-semibold';
-        descEl.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i><span>Genellikle 15 dakika içinde yanıt verilir</span>`;
+        descEl.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i><span>${escapeHtml(activeNote)}</span>`;
       }
 
       const activeBadgeHtml = `
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>Genellikle 15 dakika içinde yanıt verilir • Hafta içi: 09:00 - 19:00</span>
+        <span>${escapeHtml(activeNote)} • Hafta içi: ${escapeHtml(weekdayStartStr)} - ${escapeHtml(weekdayEndStr)}</span>
       `;
       if (quoteBadge) {
         quoteBadge.className = 'flex items-center justify-center gap-2 text-[11px] text-emerald-400 font-medium';
@@ -1203,7 +1283,7 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
         contactBadge.innerHTML = activeBadgeHtml;
       }
     } else {
-      // PASİF (Mesai Saatleri Dışı: Kırmızı Sabit Işık & Pasif Başlık)
+      // PASİF (Kırmızı Sabit Işık & Pasif Başlık)
       if (dotEl) {
         dotEl.innerHTML = `
           <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.95)]"></span>
@@ -1215,12 +1295,12 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
       }
       if (descEl) {
         descEl.className = 'flex items-center gap-2 text-rose-400 font-medium';
-        descEl.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5 shrink-0"></i><span>Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide (${nextWorkTime}) yanıtlanır</span>`;
+        descEl.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5 shrink-0"></i><span>${escapeHtml(passiveNote)} (İlk mesai: ${escapeHtml(nextWorkTime)})</span>`;
       }
 
       const passiveBadgeHtml = `
         <span class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.8)]"></span>
-        <span>Şu an mesai dışı (Pasif) • Mesajınız ilk mesaide (${nextWorkTime}) yanıtlanacaktır</span>
+        <span>${escapeHtml(passiveNote)} • Mesajınız ilk mesaide (${escapeHtml(nextWorkTime)}) yanıtlanacaktır</span>
       `;
       if (quoteBadge) {
         quoteBadge.className = 'flex items-center justify-center gap-2 text-[11px] text-slate-400 font-medium';

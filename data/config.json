@@ -11,6 +11,18 @@
     "contactEmail": "teklif@ist3dye.com",
     "workshopAddress": "İstanbul / Bahçelievler, Türkiye"
   },
+  "workingHours": {
+    "mode": "auto",
+    "weekdayStart": "09:00",
+    "weekdayEnd": "19:00",
+    "saturdayStart": "10:00",
+    "saturdayEnd": "16:00",
+    "sundayOpen": false,
+    "sundayStart": "10:00",
+    "sundayEnd": "16:00",
+    "activeNote": "Genellikle 15 dakika içinde yanıt verilir",
+    "passiveNote": "Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide yanıtlanır"
+  },
   "materials": [
     {
       "id": "pla",
