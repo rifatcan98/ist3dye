@@ -19,10 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
     return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : DEFAULT_CONFIG;
   }
 
+  // Material densities (g/cm³) for precise gram calculation
+  const MATERIAL_DENSITIES = {
+    'pla': 1.24,
+    'petg': 1.27,
+    'abs': 1.04,
+    'asa': 1.07,
+    'tpu': 1.21
+  };
+
   // ================= STATE & CONFIG =================
   let currentModel = {
-    name: 'Örnek Parça',
+    name: 'Örnek Test Modeli',
     volumeCm3: 25,
+    x: 64,
+    y: 64,
+    z: 18,
+    triangles: 1440,
+    format: 'DEMO',
     hasFile: false
   };
 
@@ -42,7 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const decreaseQty = document.getElementById('decreaseQty');
   const increaseQty = document.getElementById('increaseQty');
   const userNote = document.getElementById('userNote');
+
+  // Live Analysis Elements
   const calculatedPriceEl = document.getElementById('calculatedPrice');
+  const quoteGramsEl = document.getElementById('quoteGrams');
+  const quoteDimsEl = document.getElementById('quoteDims');
+  const quoteTimeEl = document.getElementById('quoteTime');
+  const quoteUnitPriceEl = document.getElementById('quoteUnitPrice');
+  const modelStatusDot = document.getElementById('modelStatusDot');
+  const modelStatusText = document.getElementById('modelStatusText');
+  const modelFormatBadge = document.getElementById('modelFormatBadge');
+
   const infillLabel = document.getElementById('infillLabel');
   const infillBtns = document.querySelectorAll('.infill-btn');
 
@@ -113,36 +137,59 @@ document.addEventListener('DOMContentLoaded', () => {
   populateMaterialsFromStorage();
   populateGalleryFromStorage();
 
-  // ================= PRICE CALCULATION =================
+  // ================= PRICE & WEIGHT CALCULATION =================
   function calculatePrice() {
     const cfg = getSiteConfig();
-    const baseSetupFee = cfg.baseSetupFee || 35; // Sabit makine hazırlık bedeli
-    const baseGramPrice = cfg.baseGramPrice || 2.4; // TL per gram
+    const baseSetupFee = cfg.baseSetupFee || 35; // Makine hazırlık bedeli
+    const baseGramPrice = cfg.baseGramPrice || 2.4; // Gram başı baz TL
     
-    // Malzeme katsayısı
+    // Malzeme katsayısı ve yoğunluğu
     const selectedOption = materialSelect.options[materialSelect.selectedIndex];
     const materialMultiplier = parseFloat(selectedOption?.getAttribute('data-rate') || 1.0);
+    const materialKey = (materialSelect.value || 'pla').toLowerCase();
+    const density = MATERIAL_DENSITIES[materialKey] || 1.24;
 
-    // Infill katsayısı
+    // Doluluk (Infill) katsayısı
     let infillMultiplier = 1.0;
-    if (selectedInfill === 15) infillMultiplier = 0.9;
+    if (selectedInfill === 15) infillMultiplier = 0.92;
     else if (selectedInfill === 20) infillMultiplier = 1.0;
     else if (selectedInfill === 40) infillMultiplier = 1.35;
-    else if (selectedInfill === 100) infillMultiplier = 2.3;
+    else if (selectedInfill === 100) infillMultiplier = 2.2;
 
     // Katman kalitesi katsayısı
     const qualityVal = parseFloat(qualitySelect.value || 0.20);
     let qualityMultiplier = 1.0;
-    if (qualityVal === 0.28) qualityMultiplier = 0.85;
+    if (qualityVal === 0.28) qualityMultiplier = 0.88;
     else if (qualityVal === 0.20) qualityMultiplier = 1.0;
     else if (qualityVal === 0.12) qualityMultiplier = 1.45;
 
     // Adet
     const qty = Math.max(1, parseInt(qtyInput.value) || 1);
 
-    // Tahmini gramaj
-    const estimatedGrams = Math.max(10, currentModel.volumeCm3 * (0.3 + (selectedInfill / 100) * 0.7) * 1.25);
-    
+    // Gerçekçi Gramaj Hesabı:
+    // Dış kabuklar (perimeters) ve taban/tavan katı kısımlar ~%25 pay alır, kalan %75 infill oranına göre ölçeklenir
+    const infillRatio = 0.25 + (selectedInfill / 100) * 0.75;
+    const rawGrams = currentModel.volumeCm3 * density * infillRatio;
+    const estimatedGrams = Math.max(5, Math.round(rawGrams));
+
+    // Baskı Süresi Tahmini:
+    // Standart 0.20mm katmanda saatte ~22 gram basılır
+    let speedPerHour = 22;
+    if (qualityVal >= 0.28) speedPerHour = 32;
+    else if (qualityVal <= 0.12) speedPerHour = 14;
+
+    const totalHours = estimatedGrams / speedPerHour;
+    const printHours = Math.floor(totalHours);
+    const printMins = Math.round((totalHours - printHours) * 60);
+    let printTimeText = '';
+    if (printHours === 0) {
+      printTimeText = `~${Math.max(20, printMins)} Dk`;
+    } else if (printMins === 0) {
+      printTimeText = `~${printHours} Saat`;
+    } else {
+      printTimeText = `~${printHours}s ${printMins}dk`;
+    }
+
     // Birim Fiyat
     let unitPrice = baseSetupFee + (estimatedGrams * baseGramPrice * materialMultiplier * qualityMultiplier * infillMultiplier);
     unitPrice = Math.max(cfg.minOrderPrice || 65, Math.round(unitPrice));
@@ -154,19 +201,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const totalPrice = Math.round(unitPrice * qty * discount);
 
-    calculatedPriceEl.textContent = `${totalPrice.toLocaleString('tr-TR')} ₺`;
-    return { unitPrice, totalPrice, estimatedGrams: Math.round(estimatedGrams), qty };
+    // Update UI Elements
+    if (calculatedPriceEl) calculatedPriceEl.textContent = `${totalPrice.toLocaleString('tr-TR')} ₺`;
+    if (quoteGramsEl) quoteGramsEl.textContent = `~${estimatedGrams} gr`;
+    if (quoteDimsEl) quoteDimsEl.textContent = `${currentModel.x}×${currentModel.y}×${currentModel.z} mm`;
+    if (quoteTimeEl) quoteTimeEl.textContent = printTimeText;
+    if (quoteUnitPriceEl) {
+      const discountText = discount < 1 ? ` (%${Math.round((1 - discount) * 100)} İndirim)` : '';
+      quoteUnitPriceEl.textContent = `${unitPrice} ₺ / adet${discountText}`;
+    }
+
+    if (modelStatusDot) {
+      modelStatusDot.className = currentModel.hasFile 
+        ? 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0'
+        : 'w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0';
+    }
+    if (modelStatusText) {
+      modelStatusText.textContent = currentModel.name;
+    }
+    if (modelFormatBadge) {
+      modelFormatBadge.textContent = currentModel.format;
+      modelFormatBadge.className = currentModel.hasFile
+        ? 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold shrink-0'
+        : 'text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono shrink-0';
+    }
+
+    return { unitPrice, totalPrice, estimatedGrams, printTimeText, qty };
   }
 
-  // Hook for 3D viewer when new model is loaded
-  window.triggerPriceUpdate = (volumeCm3, name) => {
-    currentModel.volumeCm3 = volumeCm3;
-    currentModel.name = name;
-    currentModel.hasFile = true;
+  // ================= 3D VIEWER HOOK =================
+  window.triggerPriceUpdate = (data) => {
+    if (typeof data === 'number') {
+      currentModel.volumeCm3 = data;
+      currentModel.hasFile = true;
+    } else if (data) {
+      currentModel.name = data.name || currentModel.name;
+      currentModel.volumeCm3 = data.volumeCm3 || currentModel.volumeCm3;
+      currentModel.x = data.x || currentModel.x;
+      currentModel.y = data.y || currentModel.y;
+      currentModel.z = data.z || currentModel.z;
+      currentModel.triangles = data.triangles || currentModel.triangles;
+      currentModel.format = data.format || 'STL';
+      currentModel.hasFile = true;
+    }
     calculatePrice();
   };
 
-  // Color selection updates 3D model hue
+  // Color selection updates 3D model color
   const colorMap = {
     'Siyah': 0x1e293b,
     'Beyaz': 0xe2e8f0,
@@ -177,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'Özel': 0x06b6d4
   };
 
-  colorSelect.addEventListener('change', () => {
+  colorSelect?.addEventListener('change', () => {
     const hex = colorMap[colorSelect.value] || 0x3b82f6;
     if (window.viewer3DInstance) {
       window.viewer3DInstance.updateMaterialColor(hex);
@@ -185,8 +266,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ================= FORM EVENTS =================
-  materialSelect.addEventListener('change', calculatePrice);
-  qualitySelect.addEventListener('change', calculatePrice);
+  materialSelect?.addEventListener('change', calculatePrice);
+  qualitySelect?.addEventListener('change', calculatePrice);
 
   // Infill Button Group
   infillBtns.forEach(btn => {
@@ -206,13 +287,13 @@ document.addEventListener('DOMContentLoaded', () => {
         40: '%40 (Yüksek Mukavemet)',
         100: '%100 (Masif / Endüstriyel)'
       };
-      infillLabel.textContent = infillDescriptions[selectedInfill] || `%${selectedInfill}`;
+      if (infillLabel) infillLabel.textContent = infillDescriptions[selectedInfill] || `%${selectedInfill}`;
       calculatePrice();
     });
   });
 
   // Quantity Counter
-  decreaseQty.addEventListener('click', () => {
+  decreaseQty?.addEventListener('click', () => {
     let val = parseInt(qtyInput.value) || 1;
     if (val > 1) {
       qtyInput.value = val - 1;
@@ -220,73 +301,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  increaseQty.addEventListener('click', () => {
+  increaseQty?.addEventListener('click', () => {
     let val = parseInt(qtyInput.value) || 1;
     qtyInput.value = val + 1;
     calculatePrice();
   });
 
-  qtyInput.addEventListener('input', calculatePrice);
+  qtyInput?.addEventListener('input', calculatePrice);
 
   // ================= FILE UPLOAD & DROPZONE =================
-  dropZone.addEventListener('click', (e) => {
+  dropZone?.addEventListener('click', (e) => {
     if (e.target !== loadDemoBtn && !loadDemoBtn.contains(e.target)) {
       fileInput.click();
     }
   });
 
   ['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, (e) => {
+    dropZone?.addEventListener(eventName, (e) => {
       e.preventDefault();
       e.stopPropagation();
-      dropZone.classList.add('drag-over');
+      dropZone.classList.add('border-brand-500', 'bg-brand-500/10');
     });
   });
 
   ['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, (e) => {
+    dropZone?.addEventListener(eventName, (e) => {
       e.preventDefault();
       e.stopPropagation();
-      dropZone.classList.remove('drag-over');
+      dropZone.classList.remove('border-brand-500', 'bg-brand-500/10');
     });
   });
 
-  dropZone.addEventListener('drop', (e) => {
+  dropZone?.addEventListener('drop', (e) => {
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleSelectedFile(files[0]);
     }
   });
 
-  fileInput.addEventListener('change', (e) => {
+  fileInput?.addEventListener('change', (e) => {
     if (e.target.files.length > 0) {
       handleSelectedFile(e.target.files[0]);
     }
   });
 
   function handleSelectedFile(file) {
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext === 'stl') {
-      if (window.viewer3DInstance) {
-        window.viewer3DInstance.loadSTLFile(file);
-      }
+    if (!file) return;
+
+    if (window.viewer3DInstance) {
+      window.viewer3DInstance.loadFile(file);
     } else {
-      // For STEP, OBJ, 3MF: Notify user and compute general quote
+      // Fallback if viewer is not ready
+      const ext = file.name.split('.').pop().toUpperCase();
       currentModel.name = file.name;
       currentModel.hasFile = true;
-      document.getElementById('loadedFileName').textContent = file.name;
-      document.getElementById('viewerPlaceholder').innerHTML = `
-        <i data-lucide="file-check" class="w-10 h-10 stroke-1 text-emerald-400"></i>
-        <p class="text-sm font-semibold text-white">${file.name}</p>
-        <p class="text-xs text-slate-400">Dosyanız başarıyla alındı. Aşağıdan teklif oluşturabilirsiniz.</p>
-      `;
-      lucide.createIcons();
+      currentModel.format = ext;
       calculatePrice();
     }
   }
 
   // Load Demo Model Button
-  loadDemoBtn.addEventListener('click', (e) => {
+  loadDemoBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     if (window.viewer3DInstance) {
       window.viewer3DInstance.loadSampleDemoModel();
@@ -303,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ================= WHATSAPP INTEGRATION =================
-  sendWhatsAppBtn.addEventListener('click', () => {
+  sendWhatsAppBtn?.addEventListener('click', () => {
     const pricing = calculatePrice();
     const materialName = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
     const qualityText = qualitySelect.options[qualitySelect.selectedIndex].text;
@@ -313,17 +388,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const message = 
 `*ist3Dye.com - 3D Baskı Fiyat Teklifi Talebi*
 ---------------------------------------
-📂 *Model / Dosya:* ${currentModel.name}
+📂 *Model / Dosya:* ${currentModel.name} (${currentModel.format})
+📐 *Parça Ebatları:* ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
+⚖️ *Tahmini Ağırlık:* ~${pricing.estimatedGrams} gram
+⏱️ *Baskı Süresi:* ${pricing.printTimeText}
 ⚙️ *Malzeme:* ${materialName}
 🎯 *Doluluk (Infill):* %${selectedInfill}
 📏 *Katman Kalitesi:* ${qualityText}
 🎨 *Renk:* ${colorText}
 🔢 *Adet:* ${pricing.qty} adet
-📝 *Özel Not:* ${note}
+📝 *Müşteri Notu:* ${note}
 ---------------------------------------
-💰 *Tahmini Fiyat:* ${pricing.totalPrice.toLocaleString('tr-TR')} ₺
+💰 *Tahmini Toplam Tutar:* ${pricing.totalPrice.toLocaleString('tr-TR')} ₺
 ---------------------------------------
-Merhaba, yukarıdaki parametrelerde 3D baskı yaptırmak ve kesin teklif almak istiyorum. Dosyamı göndermek üzere bilgi verir misiniz?`;
+Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif almak istiyorum. Dosyamı göndermek üzere bilgi verir misiniz?`;
 
     const cfg = getSiteConfig();
     const encoded = encodeURIComponent(message);
@@ -332,14 +410,16 @@ Merhaba, yukarıdaki parametrelerde 3D baskı yaptırmak ve kesin teklif almak i
   });
 
   // Open Email / Phone scroll
-  openEmailModalBtn.addEventListener('click', () => {
+  openEmailModalBtn?.addEventListener('click', () => {
     const contactSection = document.getElementById('iletisim');
-    contactSection.scrollIntoView({ behavior: 'smooth' });
+    contactSection?.scrollIntoView({ behavior: 'smooth' });
     
     // Auto populate message field with quote parameters
     const pricing = calculatePrice();
     const contactMsg = document.getElementById('contactMessage');
-    contactMsg.value = `Model: ${currentModel.name} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Renk: ${colorSelect.value} | Adet: ${pricing.qty} | Tahmini Tutar: ${pricing.totalPrice} TL`;
+    if (contactMsg) {
+      contactMsg.value = `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ~${pricing.estimatedGrams} gr | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Renk: ${colorSelect.value} | Adet: ${pricing.qty} | Tahmini Tutar: ${pricing.totalPrice} TL`;
+    }
   });
 
   // Check for successful form submit return
@@ -363,7 +443,7 @@ Merhaba, yukarıdaki parametrelerde 3D baskı yaptırmak ve kesin teklif almak i
     const hiddenQuantity = document.getElementById('hiddenQty');
     const hiddenPr = document.getElementById('hiddenPrice');
 
-    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? currentModel.name : 'Model yüklenmedi';
+    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ~${pricing.estimatedGrams}gr)` : 'Model yüklenmedi';
     if (hiddenMat) hiddenMat.value = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
     if (hiddenInf) hiddenInf.value = `%${selectedInfill}`;
     if (hiddenQual) hiddenQual.value = qualitySelect.options[qualitySelect.selectedIndex].text;
@@ -401,9 +481,9 @@ Merhaba, yukarıdaki parametrelerde 3D baskı yaptırmak ve kesin teklif almak i
   faqItems.forEach(item => {
     const questionBtn = item.querySelector('.faq-question');
     const answer = item.querySelector('.faq-answer');
-    const chevron = questionBtn.querySelector('i');
+    const chevron = questionBtn?.querySelector('i');
 
-    questionBtn.addEventListener('click', () => {
+    questionBtn?.addEventListener('click', () => {
       const isOpen = !answer.classList.contains('hidden');
       
       // Close all
