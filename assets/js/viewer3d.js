@@ -236,7 +236,17 @@ class ThreeDViewer {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, 'application/xml');
 
-    const modelTag = doc.getElementsByTagName('model')[0];
+    const getTags = (parent, name) => {
+      let nodes = parent.getElementsByTagName(name);
+      if (!nodes || nodes.length === 0) nodes = parent.getElementsByTagName('m:' + name);
+      if ((!nodes || nodes.length === 0) && parent.getElementsByTagNameNS) {
+        nodes = parent.getElementsByTagNameNS('*', name);
+      }
+      return Array.from(nodes || []);
+    };
+
+    const modelTags = getTags(doc, 'model');
+    const modelTag = modelTags[0];
     let unitScale = 1.0;
     if (modelTag) {
       const unit = (modelTag.getAttribute('unit') || 'millimeter').toLowerCase();
@@ -247,11 +257,11 @@ class ThreeDViewer {
     }
 
     const allPositions = [];
-    const meshNodes = doc.getElementsByTagName('mesh');
+    const meshNodes = getTags(doc, 'mesh');
 
     for (let m = 0; m < meshNodes.length; m++) {
       const meshNode = meshNodes[m];
-      const vertexNodes = meshNode.getElementsByTagName('vertex');
+      const vertexNodes = getTags(meshNode, 'vertex');
       const vertices = [];
 
       for (let i = 0; i < vertexNodes.length; i++) {
@@ -263,7 +273,7 @@ class ThreeDViewer {
         );
       }
 
-      const triangleNodes = meshNode.getElementsByTagName('triangle');
+      const triangleNodes = getTags(meshNode, 'triangle');
       for (let i = 0; i < triangleNodes.length; i++) {
         const t = triangleNodes[i];
         const v1 = parseInt(t.getAttribute('v1'), 10);
@@ -537,7 +547,7 @@ class ThreeDViewer {
     this.displayGeometry(geometry, 'ornek_muhendislik_parcasi.stl', 'DEMO');
   }
 
-  // ================= EXACT MATHEMATICAL VOLUME =================
+  // ================= EXACT MATHEMATICAL VOLUME (Signed Tetrahedron Sum) =================
   calculateExactMeshVolume(geometry) {
     const pos = geometry.attributes.position;
     if (!pos) return 0;
@@ -546,23 +556,42 @@ class ThreeDViewer {
     const p1 = new THREE.Vector3();
     const p2 = new THREE.Vector3();
     const p3 = new THREE.Vector3();
-    const count = pos.count;
 
-    for (let i = 0; i < count; i += 3) {
-      p1.fromBufferAttribute(pos, i);
-      p2.fromBufferAttribute(pos, i + 1);
-      p3.fromBufferAttribute(pos, i + 2);
+    const index = geometry.index;
+    if (index) {
+      const count = index.count;
+      for (let i = 0; i < count; i += 3) {
+        const a = index.getX(i);
+        const b = index.getX(i + 1);
+        const c = index.getX(i + 2);
 
-      const v = (
-        -p3.x * p2.y * p1.z +
-         p2.x * p3.y * p1.z +
-         p3.x * p1.y * p2.z -
-         p1.x * p3.y * p2.z -
-         p2.x * p1.y * p3.z +
-         p1.x * p2.y * p3.z
-      ) / 6.0;
+        p1.fromBufferAttribute(pos, a);
+        p2.fromBufferAttribute(pos, b);
+        p3.fromBufferAttribute(pos, c);
 
-      totalSignedVolume += v;
+        const v = (
+          p1.x * (p2.y * p3.z - p2.z * p3.y) +
+          p1.y * (p2.z * p3.x - p2.x * p3.z) +
+          p1.z * (p2.x * p3.y - p2.y * p3.x)
+        ) / 6.0;
+
+        totalSignedVolume += v;
+      }
+    } else {
+      const count = pos.count;
+      for (let i = 0; i < count; i += 3) {
+        p1.fromBufferAttribute(pos, i);
+        p2.fromBufferAttribute(pos, i + 1);
+        p3.fromBufferAttribute(pos, i + 2);
+
+        const v = (
+          p1.x * (p2.y * p3.z - p2.z * p3.y) +
+          p1.y * (p2.z * p3.x - p2.x * p3.z) +
+          p1.z * (p2.x * p3.y - p2.y * p3.x)
+        ) / 6.0;
+
+        totalSignedVolume += v;
+      }
     }
 
     const volCm3 = Math.abs(totalSignedVolume) / 1000.0;
@@ -603,12 +632,18 @@ class ThreeDViewer {
     const x = Math.max(1, Math.round(size.x));
     const y = Math.max(1, Math.round(size.y));
     const z = Math.max(1, Math.round(size.z));
+    const bboxVolumeCm3 = (x * y * z) / 1000.0;
 
     let exactVolume = this.calculateExactMeshVolume(geometry);
-    if (!exactVolume || exactVolume < 0.5) {
-      exactVolume = Math.max(5, (x * y * z * 0.00045));
+    // Sanity check: If exact volume is 0 or corrupted (< 0.1 cm³) while bbox is larger,
+    // fallback to conservative envelope approximation (~45%).
+    // Also, exact solid volume cannot physically exceed its bounding box.
+    if (!exactVolume || exactVolume < 0.1) {
+      exactVolume = Math.max(1, bboxVolumeCm3 * 0.45);
+    } else if (exactVolume > bboxVolumeCm3 * 1.05) {
+      exactVolume = bboxVolumeCm3;
     }
-    this.modelVolumeCm3 = Math.max(2, Math.round(exactVolume * 10) / 10);
+    this.modelVolumeCm3 = Math.max(0.5, Math.round(exactVolume * 10) / 10);
 
     const triCount = geometry.attributes.position ? Math.round(geometry.attributes.position.count / 3) : 0;
 

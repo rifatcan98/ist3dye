@@ -115,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const materialKey = (materialSelect.value || 'pla').toLowerCase();
     const density = MATERIAL_DENSITIES[materialKey] || 1.24;
 
-    // Doluluk (Infill) katsayısı
+    // Doluluk (Infill) makine zorluk katsayısı
     let infillMultiplier = 1.0;
-    if (selectedInfill === 15) infillMultiplier = 0.92;
+    if (selectedInfill === 15) infillMultiplier = 0.98;
     else if (selectedInfill === 20) infillMultiplier = 1.0;
-    else if (selectedInfill === 40) infillMultiplier = 1.35;
-    else if (selectedInfill === 100) infillMultiplier = 2.2;
+    else if (selectedInfill === 40) infillMultiplier = 1.05;
+    else if (selectedInfill === 100) infillMultiplier = 1.15;
 
     // Katman kalitesi katsayısı
     const qualityVal = parseFloat(qualitySelect.value || 0.20);
