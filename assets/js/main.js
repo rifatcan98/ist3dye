@@ -689,13 +689,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ================= MODAL: KVKK & GİZLİLİK =================
+  const kvkkModal = document.getElementById('kvkkModal');
+  const footerKvkkBtn = document.getElementById('footerKvkkBtn');
+  const openKvkkFromFormBtn = document.getElementById('openKvkkFromFormBtn');
+  const closeKvkkBtn = document.getElementById('closeKvkkBtn');
+  const okKvkkBtn = document.getElementById('okKvkkBtn');
+
+  const openKvkk = () => {
+    kvkkModal?.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  };
+  const closeKvkk = () => {
+    kvkkModal?.classList.add('hidden');
+  };
+
+  footerKvkkBtn?.addEventListener('click', openKvkk);
+  openKvkkFromFormBtn?.addEventListener('click', openKvkk);
+  closeKvkkBtn?.addEventListener('click', closeKvkk);
+  okKvkkBtn?.addEventListener('click', closeKvkk);
+
+  // ================= MODAL: KİŞİYE ÖZEL ÜRETİM & CAYMA KOŞULLARI =================
+  const policyModal = document.getElementById('policyModal');
+  const footerPolicyBtn = document.getElementById('footerPolicyBtn');
+  const openPolicyFromFormBtn = document.getElementById('openPolicyFromFormBtn');
+  const closePolicyBtn = document.getElementById('closePolicyBtn');
+  const okPolicyBtn = document.getElementById('okPolicyBtn');
+
+  const openPolicy = () => {
+    policyModal?.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  };
+  const closePolicy = () => {
+    policyModal?.classList.add('hidden');
+  };
+
+  footerPolicyBtn?.addEventListener('click', openPolicy);
+  openPolicyFromFormBtn?.addEventListener('click', openPolicy);
+  closePolicyBtn?.addEventListener('click', closePolicy);
+  okPolicyBtn?.addEventListener('click', closePolicy);
+
   // Close modals on backdrop click
-  [materialGuideModal, designHelpModal].forEach(modal => {
+  [materialGuideModal, designHelpModal, kvkkModal, policyModal].forEach(modal => {
     modal?.addEventListener('click', (e) => {
       if (e.target === modal) {
         modal.classList.add('hidden');
       }
     });
+  });
+
+  // Close modals on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      [materialGuideModal, designHelpModal, kvkkModal, policyModal].forEach(modal => {
+        modal?.classList.add('hidden');
+      });
+    }
   });
 
   // ================= WHATSAPP INTEGRATION =================

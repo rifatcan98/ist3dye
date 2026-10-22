@@ -1043,6 +1043,33 @@
           </div>
         </div>
 
+        <!-- FAQ 5: Cayma Hakkı, İade & Hukuki Garanti -->
+        <div class="faq-item rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+          <button class="faq-question w-full p-5 text-left font-semibold text-white flex justify-between items-center hover:text-brand-400 transition-colors">
+            <span>Sipariş verdikten sonra iade veya iptal yapabilir miyim? Hatalı çıkarsa ne olur?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-900 pt-3 space-y-2">
+            <p>
+              3D baskı hizmeti tamamen sizin belirlediğiniz model, ölçü, malzeme ve renge özel olarak sıfırdan imal edildiğinden; <strong>6502 sayılı Tüketicinin Korunması Hakkında Kanun ve Mesafeli Sözleşmeler Yönetmeliği m. 15/1-b</strong> uyarınca kişiye özel üretimlerde keyfi cayma hakkı bulunmamaktadır.
+            </p>
+            <p>
+              <strong>Ancak içiniz %100 rahat olsun:</strong> Atölyemiz kaynaklı katman ayrılması, tolerans dışı ölçü hatası veya kargoda ezilme/kırılma gibi tüm kusurlarda parçanız <strong>hiçbir ek ücret talep edilmeksizin derhal yeniden basılır ve ekspres kargoyla</strong> gönderilir.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 6: Fikri Mülkiyet & Model Gizliliği -->
+        <div class="faq-item rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden">
+          <button class="faq-question w-full p-5 text-left font-semibold text-white flex justify-between items-center hover:text-brand-400 transition-colors">
+            <span>Yüklediğim 3D modeller ve teknik çizimler gizli tutuluyor mu?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+          </button>
+          <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-400 leading-relaxed border-t border-slate-900 pt-3">
+            Evet, kesinlikle! Sistemimize yüklediğiniz veya WhatsApp/e-posta ile ilettiğiniz tüm 3D CAD modelleri, patentli tasarımlar ve teknik çizimler tamamen sizin mülkiyetinizdedir. İzniniz olmaksızın hiçbir üçüncü kişiyle paylaşılmaz, ticari amaçla kullanılamaz ve sosyal medyada sergilenmez. Kurumsal projeleriniz için talep doğrultusunda karşılıklı Gizlilik Sözleşmesi (NDA) imzalanabilmektedir.
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1148,6 +1175,15 @@
                 <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
                 <span>WhatsApp üzerinden formdaki bilgilerinizle birlikte <strong>.STL, .STEP veya .OBJ</strong> dosyalarınızı da doğrudan ataç simgesiyle iletebilirsiniz.</span>
               </div>
+
+              <!-- KVKK & Cayma Hakkı Bilgilendirme Notu -->
+              <div class="pt-1 text-[11px] text-slate-400 text-center leading-relaxed">
+                Talebinizi ileterek 
+                <button type="button" id="openKvkkFromFormBtn" class="text-cyan-400 hover:text-cyan-300 underline font-medium">KVKK Aydınlatma Metni</button>
+                ve 
+                <button type="button" id="openPolicyFromFormBtn" class="text-cyan-400 hover:text-cyan-300 underline font-medium">Kişiye Özel Üretim Koşulları</button>'nı
+                kabul etmiş sayılırsınız. Tasarımlarınız %100 gizlilik altındadır.
+              </div>
             </div>
             <p id="contactStatus" class="hidden text-xs text-center text-emerald-400"></p>
           </form>
@@ -1174,12 +1210,14 @@
         <span class="text-xs text-slate-500 ml-2 hidden sm:inline">© 2026 Tüm Hakları Saklıdır.</span>
       </div>
 
-      <div class="flex items-center gap-6 text-xs text-slate-400">
+      <div class="flex flex-wrap items-center justify-center md:justify-end gap-x-5 gap-y-2 text-xs text-slate-400">
         <a href="#teklif-al" class="hover:text-white transition-colors">Fiyat Hesapla</a>
         <a href="#galeri" class="hover:text-white transition-colors">Galeri</a>
         <a href="#malzemeler" class="hover:text-white transition-colors">Malzemeler</a>
         <a href="#sss" class="hover:text-white transition-colors">SSS</a>
         <a href="#iletisim" class="hover:text-white transition-colors">İletişim</a>
+        <button type="button" id="footerKvkkBtn" class="hover:text-cyan-400 transition-colors underline-offset-4 hover:underline">KVKK & Gizlilik</button>
+        <button type="button" id="footerPolicyBtn" class="hover:text-cyan-400 transition-colors underline-offset-4 hover:underline">Kişiye Özel Üretim Koşulları</button>
         <a href="admin.html" class="hover:text-brand-400 transition-colors flex items-center gap-1 text-slate-500 hover:text-slate-300">
           <i data-lucide="lock" class="w-3 h-3"></i> Yönetici
         </a>
@@ -1319,6 +1357,170 @@
         </a>
         <button id="cancelDesignBtn" type="button" class="w-full py-2.5 text-xs text-slate-400 hover:text-white transition-colors">Vazgeç</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: KVKK & GİZLİLİK POLİTİKASI ================= -->
+  <div id="kvkkModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl max-h-[85vh] overflow-y-auto space-y-6 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-white">KVKK ve Gizlilik Aydınlatma Metni</h3>
+            <p class="text-xs text-slate-400">6698 Sayılı Kişisel Verilerin Korunması Kanunu Kapsamında Bilgilendirme</p>
+          </div>
+        </div>
+        <button id="closeKvkkBtn" type="button" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-5 text-xs text-slate-300 leading-relaxed">
+        
+        <!-- 1. Veri Sorumlusu -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            1. Veri Sorumlusu
+          </h4>
+          <p>
+            Bu aydınlatma metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, veri sorumlusu sıfatıyla <strong>ist3Dye Teknoloji ve Tasarım Stüdyosu</strong> (İstanbul / Bahçelievler) tarafından hazırlanmıştır. İletişim: <span class="text-cyan-400 font-mono">teklif@ist3dye.com</span>.
+          </p>
+        </div>
+
+        <!-- 2. İşlenen Kişisel Veriler -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            2. İşlenen Veriler ve Toplanma Amaçları
+          </h4>
+          <ul class="list-disc list-inside space-y-1.5 text-slate-400">
+            <li><strong class="text-slate-200">Kimlik & İletişim Verileri:</strong> Ad, soyad, telefon/WhatsApp numarası ve e-posta adresi (Teklif hazırlama, teknik danışma ve teslimat iletişimi amacıyla).</li>
+            <li><strong class="text-slate-200">Üretim & Tasarım Verileri:</strong> Yüklenen 3D model dosyaları (.STL, .OBJ, .3MF, .STEP) ve teknik fotoğraflar (Parçanın hacim, gramaj, basılabilirlik ve mukavemet analizinin yapılması amacıyla).</li>
+            <li><strong class="text-slate-200">Teslimat & Fatura Bilgileri:</strong> Adres, vergi/T.C. bilgileri (Ürünlerin anlaşmalı kargo ile ulaştırılması ve faturalandırma amacıyla).</li>
+          </ul>
+        </div>
+
+        <!-- 3. Fikri Mülkiyet & Gizlilik (NDA Güvencesi) -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/40 to-slate-950 border border-cyan-500/30 space-y-2">
+          <h4 class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4 text-cyan-400"></i>
+            3. Fikri Mülkiyet ve Tasarım Gizliliği Taahhüdü
+          </h4>
+          <p class="text-slate-300">
+            ist3Dye olarak müşterilerimizin AR-GE, prototip ve kişisel modellerinin gizliliğini temel prensip kabul ederiz:
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li>Yüklediğiniz veya ilettiğiniz hiçbir 3D model üçüncü kişi veya kurumlarla <strong>kesinlikle paylaşılmaz ve çoğaltılmaz.</strong></li>
+            <li>Modelleriniz açık yazılı onayınız olmaksızın sosyal medya, internet sitesi veya vitrin tanıtımlarında sergilenmez.</li>
+            <li>Siparişiniz tamamlandıktan sonra talebiniz doğrultusunda tüm model dosyaları üretim sistemlerimizden kalıcı olarak imha edilir.</li>
+            <li>Kurumsal ve gizlilik hassasiyeti olan projeler için karşılıklı <strong>Gizlilik Sözleşmesi (NDA)</strong> akdedilmektedir.</li>
+          </ul>
+        </div>
+
+        <!-- 4. Verilerin Aktarımı ve Haklar -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            4. Veri Aktarımı ve KVKK Madde 11 Haklarınız
+          </h4>
+          <p>
+            Verileriniz yalnızca ürünün tarafınıza ulaştırılması amacıyla anlaşmalı kargo firmaları ile paylaşılmakta, bunun dışında ticari veya reklam amacıyla hiçbir kuruma satılmamaktadır. KVKK 11. maddesi uyarınca verilerinizin silinmesini, düzeltilmesini veya kullanım amacını öğrenmeyi her zaman <strong class="text-white">teklif@ist3dye.com</strong> adresinden talep edebilirsiniz.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button id="okKvkkBtn" type="button" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors">
+          Anladım & Kapat
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MODAL 4: KİŞİYE ÖZEL ÜRETİM & CAYMA KOŞULLARI ================= -->
+  <div id="policyModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl max-h-[85vh] overflow-y-auto space-y-6 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+            <i data-lucide="scale" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-white">Kişiye Özel Üretim ve Cayma Koşulları</h3>
+            <p class="text-xs text-slate-400">Mesafeli Sözleşmeler Yönetmeliği Kapsamında Tüketici Bilgilendirmesi</p>
+          </div>
+        </div>
+        <button id="closePolicyBtn" type="button" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-5 text-xs text-slate-300 leading-relaxed">
+        
+        <!-- Yasal Cayma Hakkı İstisnası -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-2">
+          <h4 class="text-sm font-bold text-amber-300 flex items-center gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400"></i>
+            1. Yasal Cayma Hakkı İstisnası (6502 Sayılı Kanun)
+          </h4>
+          <p>
+            6502 sayılı Tüketicinin Korunması Hakkında Kanun ve <strong>Mesafeli Sözleşmeler Yönetmeliği'nin 15. Maddesinin 1. Fıkrasının (b) bendi</strong> uyarınca:
+          </p>
+          <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 italic font-medium">
+            "Tüketicinin istekleri veya kişisel ihtiyaçları doğrultusunda hazırlanan mallara ilişkin sözleşmelerde tüketici cayma hakkını kullanamaz."
+          </div>
+          <p class="text-slate-400">
+            ist3Dye tarafından üretilen tüm 3D baskı parçaları; müşterinin ilettiği özel 3D model, renk, malzeme ve doluluk tercihlerine göre kişiselleştirilmiş tekil imalat niteliğindedir. Bu sebeple <strong>baskı üretimi başladıktan sonra keyfi cayma, sebepsiz iade veya sipariş iptali yapılamamaktadır.</strong>
+          </p>
+        </div>
+
+        <!-- Kusursuz Baskı & Yeniden Basım Garantisi -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 to-slate-950 border border-emerald-500/30 space-y-2">
+          <h4 class="text-sm font-bold text-emerald-300 flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+            2. %100 Kusursuz Baskı & Yeniden Basım Garantimiz
+          </h4>
+          <p class="text-slate-300">
+            Keyfi iade olmamakla birlikte, ist3Dye üretim ve kalite standartlarını garanti eder. Aşağıdaki durumlarda parçanız <strong>hiçbir ek bedel alınmaksızın derhal yeniden basılır ve ekspres kargolanır:</strong>
+          </p>
+          <ul class="list-disc list-inside space-y-1.5 text-slate-300">
+            <li><strong class="text-white">Üretim Kusurları:</strong> Katman ayrılması (delaminasyon), eksik ekstrüzyon veya mekanik mukavemeti bozan baskı hataları.</li>
+            <li><strong class="text-white">Tolerans Dışı Ölçü Sapması:</strong> FDM endüstri standardı olan (±0.2 mm / %0.3) tolerans sınırlarının dışına çıkan bariz ölçü sapmaları.</li>
+            <li><strong class="text-white">Yanlış Malzeme / Renk:</strong> Onaylanan filament türü veya rengi dışında farklı üretim yapılması.</li>
+            <li><strong class="text-white">Kargo Taşıma Hasarı:</strong> Taşıma sırasında kırılan, ezilen veya hasar gören ürünler.</li>
+          </ul>
+        </div>
+
+        <!-- Müşteri Model Sorumluluğu & Hasar Bildirimi -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            3. Hasar Bildirim Süreci ve Ön İnceleme
+          </h4>
+          <p>
+            Kargonuzu teslim aldıktan sonra parçada bir kusur veya taşıma hasarı tespit ederseniz, teslim tarihinden itibaren <strong>48 saat içinde</strong> parça fotoğraflarını WhatsApp hattımıza veya <strong class="text-white">teklif@ist3dye.com</strong> adresine iletmeniz yeterlidir. İnceleme aynı gün sonuçlandırılarak yeni baskı derhal tezgaha alınır.
+          </p>
+          <p class="text-[11px] text-slate-500">
+            * Müşterinin yüklediği orijinal 3D CAD dosyasındaki hatalı ters yüzeyler (inverted normals) veya fiziksel üretim sınırlarının altındaki aşırı ince (&lt;0.8 mm) et kalınlıklarından kaynaklanan zayıflıklar müşteri tasarım sorumluluğundadır; ancak ekibimiz bu riskleri önceden fark ettiğinde müşteriyi uyararak teyit almaktadır.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="pt-2 border-t border-slate-800 flex justify-end">
+        <button id="okPolicyBtn" type="button" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors">
+          Anladım & Kapat
+        </button>
+      </div>
+
     </div>
   </div>
 
