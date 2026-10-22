@@ -24,8 +24,6 @@ const DEFAULT_WORKING_HOURS = {
 };
 
 const DEFAULT_CONFIG = {
-  adminUsername: 'Rıfatcan',
-  adminPassword: '123Rifatcan.123',
   baseSetupFee: 35,
   baseGramPrice: 2.4,
   minOrderPrice: 65,
@@ -113,14 +111,6 @@ function getConfig() {
     ...(config.workingHours || {})
   };
 
-  // Automatically migrate legacy default credentials
-  if (!config.adminUsername || config.adminUsername === 'admin') {
-    config.adminUsername = 'Rıfatcan';
-  }
-  if (!config.adminPassword || config.adminPassword === 'admin') {
-    config.adminPassword = '123Rifatcan.123';
-  }
-
   return config;
 }
 
@@ -146,112 +136,13 @@ function saveGallery(gal) {
   localStorage.setItem('ist3dye_gallery', JSON.stringify(gal));
 }
 
-// Helper: Normalize username for Turkish character flexibility (i/ı, casing)
-function normalizeUsername(str) {
-  return (str || '')
-    .trim()
-    .toLocaleLowerCase('tr-TR')
-    .replace(/i/g, 'ı');
-}
-
 // ================= DOM ELEMENTS & EVENTS =================
 document.addEventListener('DOMContentLoaded', () => {
 
-  const loginScreen = document.getElementById('loginScreen');
-  const adminDashboard = document.getElementById('adminDashboard');
-  const adminLoginForm = document.getElementById('adminLoginForm');
-  const adminUsernameInput = document.getElementById('adminUsernameInput');
-  const adminPasswordInput = document.getElementById('adminPasswordInput');
-  const loginError = document.getElementById('loginError');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const togglePasswordVisibility = document.getElementById('togglePasswordVisibility');
-
-  // Rate-limiting / Failed attempt tracking
-  let failedAttempts = parseInt(sessionStorage.getItem('ist3dye_failed_attempts') || '0', 10);
-  let lockUntil = parseInt(sessionStorage.getItem('ist3dye_lock_until') || '0', 10);
-
-  function isLocked() {
-    const now = Date.now();
-    if (lockUntil && now < lockUntil) {
-      const remainingSec = Math.ceil((lockUntil - now) / 1000);
-      loginError.textContent = `Çok fazla hatalı deneme yapıldı. Lütfen ${remainingSec} saniye bekleyin.`;
-      loginError.classList.remove('hidden');
-      return true;
-    }
-    return false;
-  }
-
-  // Check login state
-  if (sessionStorage.getItem('ist3dye_logged_in') === 'true') {
-    showDashboard();
-  }
-
-  // Toggle Password View
-  togglePasswordVisibility?.addEventListener('click', () => {
-    const isPassword = adminPasswordInput.type === 'password';
-    adminPasswordInput.type = isPassword ? 'text' : 'password';
-  });
-
-  // Login Form Submit
-  adminLoginForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    if (isLocked()) return;
-
-    const enteredUser = (adminUsernameInput?.value || '').trim();
-    const enteredPass = (adminPasswordInput?.value || '').trim();
-    const cfg = getConfig();
-
-    const expectedUser = (cfg.adminUsername || 'Rıfatcan').trim();
-    const expectedPass = (cfg.adminPassword || '123Rifatcan.123').trim();
-
-    // Check username (case-insensitive & Turkish character tolerant)
-    const isUserValid = normalizeUsername(enteredUser) === normalizeUsername(expectedUser) ||
-                        normalizeUsername(enteredUser) === normalizeUsername('Rıfatcan');
-
-    // Check password (allows configured password or master password)
-    const isPassValid = enteredPass === expectedPass || enteredPass === '123Rifatcan.123';
-
-    if (isUserValid && isPassValid) {
-      // Login Success
-      sessionStorage.setItem('ist3dye_logged_in', 'true');
-      sessionStorage.removeItem('ist3dye_failed_attempts');
-      sessionStorage.removeItem('ist3dye_lock_until');
-      failedAttempts = 0;
-      lockUntil = 0;
-      loginError.classList.add('hidden');
-      showDashboard();
-    } else {
-      // Login Failed
-      failedAttempts++;
-      sessionStorage.setItem('ist3dye_failed_attempts', failedAttempts.toString());
-
-      if (failedAttempts >= 5) {
-        lockUntil = Date.now() + 30000; // 30 sec lock
-        sessionStorage.setItem('ist3dye_lock_until', lockUntil.toString());
-        loginError.textContent = '5 kez hatalı giriş yapıldı. Güvenlik nedeniyle sistem 30 saniye kilitlendi.';
-      } else {
-        loginError.textContent = `Hatalı kullanıcı adı veya şifre! (Kalan deneme hakkı: ${5 - failedAttempts})`;
-      }
-      loginError.classList.remove('hidden');
-    }
-  });
-
-  // Logout
-  logoutBtn?.addEventListener('click', () => {
-    sessionStorage.removeItem('ist3dye_logged_in');
-    adminDashboard.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-    if (adminUsernameInput) adminUsernameInput.value = '';
-    if (adminPasswordInput) adminPasswordInput.value = '';
-    loginError.classList.add('hidden');
-  });
-
-  function showDashboard() {
-    loginScreen.classList.add('hidden');
-    adminDashboard.classList.remove('hidden');
-    loadAllAdminData();
-    syncWithServerConfig();
+  // Load all configuration into inputs
+  loadAllAdminData();
+  syncWithServerConfig();
+  if (window.lucide) {
     lucide.createIcons();
   }
 
@@ -315,10 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cfgWhatsappPhone').value = cfg.whatsappPhone;
     document.getElementById('cfgContactEmail').value = cfg.contactEmail;
     document.getElementById('cfgWorkshopAddress').value = cfg.workshopAddress;
-
-    if (document.getElementById('cfgAdminUsername')) {
-      document.getElementById('cfgAdminUsername').value = cfg.adminUsername || 'Rıfatcan';
-    }
 
     // Working Hours & Support Status
     const wh = cfg.workingHours || DEFAULT_WORKING_HOURS;
@@ -517,31 +404,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const phone = document.getElementById('cfgWhatsappPhone').value.trim();
     const email = document.getElementById('cfgContactEmail').value.trim();
     const address = document.getElementById('cfgWorkshopAddress').value.trim();
-    const newUsername = document.getElementById('cfgAdminUsername')?.value.trim();
-    const newPass = document.getElementById('cfgNewAdminPassword').value.trim();
 
     if (phone) cfg.whatsappPhone = phone;
     if (email) cfg.contactEmail = email;
     if (address) cfg.workshopAddress = address;
 
-    let changes = [];
-
-    if (newUsername && newUsername !== cfg.adminUsername) {
-      cfg.adminUsername = newUsername;
-      changes.push(`Kullanıcı Adı: "${newUsername}"`);
-    }
-
-    if (newPass) {
-      cfg.adminPassword = newPass;
-      changes.push(`Şifre başarıyla güncellendi`);
-      document.getElementById('cfgNewAdminPassword').value = '';
-    }
-
     saveConfig(cfg);
-
-    if (changes.length > 0) {
-      alert('Yönetici güvenlik bilgileri güncellendi:\n' + changes.join('\n'));
-    }
 
     const notice = document.getElementById('generalSaveNotice');
     notice.classList.remove('hidden');

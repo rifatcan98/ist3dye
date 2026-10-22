@@ -42,57 +42,8 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between">
 
-  <!-- ================= 1. LOGIN SCREEN ================= -->
-  <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur relative overflow-hidden">
-      <!-- Glow -->
-      <div class="absolute -top-12 -right-12 w-36 h-36 bg-brand-500/20 rounded-full blur-2xl pointer-events-none"></div>
-      
-      <div class="text-center space-y-3 mb-8">
-        <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
-          <img src="/assets/images/logo-emblem.png" alt="ist3Dye Logo" class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(6,182,212,0.5)]">
-        </div>
-        <h1 class="text-2xl font-display font-bold text-white">ist3Dye Yönetici Girişi</h1>
-        <p class="text-xs text-slate-400">Fiyatları, malzemeleri ve vitrin baskılarını buradan yönetebilirsiniz.</p>
-      </div>
-
-      <form id="adminLoginForm" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Kullanıcı Adı</label>
-          <div class="relative">
-            <input type="text" id="adminUsernameInput" placeholder="Kullanıcı adınızı girin..." required autocomplete="username" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Yönetici Şifresi</label>
-          <div class="relative">
-            <input type="password" id="adminPasswordInput" placeholder="Şifrenizi girin..." required autocomplete="current-password" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 pr-10">
-            <button type="button" id="togglePasswordVisibility" class="absolute right-3 top-3.5 text-slate-400 hover:text-white" title="Şifreyi Göster/Gizle">
-              <i data-lucide="eye" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
-          <i data-lucide="log-in" class="w-4 h-4"></i>
-          <span>Panele Giriş Yap</span>
-        </button>
-
-        <p id="loginError" class="hidden text-xs text-center text-red-400 font-medium"></p>
-        
-        <div class="pt-4 text-center border-t border-slate-800">
-          <a href="/" class="text-xs text-slate-400 hover:text-white flex items-center justify-center gap-1">
-            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-            <span>Siteye Geri Dön</span>
-          </a>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ================= 2. DASHBOARD MAIN ================= -->
-  <div id="adminDashboard" class="hidden min-h-screen flex flex-col">
+  <!-- ================= DASHBOARD MAIN ================= -->
+  <div id="adminDashboard" class="min-h-screen flex flex-col">
     
     <!-- Top Bar -->
     <header class="bg-slate-900/80 border-b border-slate-800 backdrop-blur sticky top-0 z-30">
@@ -106,15 +57,15 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Zero Trust Korumalı</span>
+          </div>
           <a href="/" target="_blank" class="text-xs text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700">
             <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             <span>Canlı Siteyi Gör</span>
           </a>
-          <button id="logoutBtn" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-            <span>Çıkış Yap</span>
-          </button>
         </div>
       </div>
     </header>
@@ -468,16 +419,16 @@
               <input type="text" id="cfgWorkshopAddress" placeholder="İstanbul / Bahçelievler, Türkiye" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
             </div>
 
-            <div class="space-y-2 pt-4 border-t border-slate-800">
-              <label class="block text-xs font-semibold text-slate-300">Yönetici Kullanıcı Adı</label>
-              <input type="text" id="cfgAdminUsername" placeholder="Rıfatcan" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
-              <span class="text-[11px] text-slate-500">Panele giriş yaparken kullanacağınız kullanıcı adı (varsayılan: Rıfatcan).</span>
-            </div>
-
-            <div class="space-y-2 pt-4 border-t border-slate-800">
-              <label class="block text-xs font-semibold text-slate-300">Yeni Yönetici Şifresi</label>
-              <input type="password" id="cfgNewAdminPassword" placeholder="Şifrenizi değiştirmek için yeni şifre yazın..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
-              <span class="text-[11px] text-slate-500">Boş bırakırsanız mevcut şifreniz değişmez.</span>
+            <div class="sm:col-span-2 pt-4 border-t border-slate-800">
+              <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
+                <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5"></i>
+                <div class="space-y-1">
+                  <h4 class="text-xs font-bold text-emerald-300 uppercase tracking-wider">Cloudflare Zero Trust Güvenliği Devrede</h4>
+                  <p class="text-xs text-slate-300 leading-relaxed">
+                    Bu panel doğrudan Cloudflare Access katmanı ile korunmaktadır. Kod üzerinde açık şifre veya parola tutulmaz; panele yalnızca yetkilendirilmiş Gmail adresinize gelen tek kullanımlık güvenlik kodu (OTP) ile erişilebilir.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
