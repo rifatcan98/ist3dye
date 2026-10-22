@@ -103,6 +103,68 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
 
+  // Load Custom Materials from Admin if configured
+  function populateMaterialsFromStorage() {
+    const saved = localStorage.getItem('ist3dye_materials');
+    if (!saved) return;
+    try {
+      const mats = JSON.parse(saved);
+      if (mats && mats.length > 0) {
+        materialSelect.innerHTML = '';
+        mats.forEach((m, idx) => {
+          const opt = document.createElement('option');
+          opt.value = m.id || m.name.toLowerCase();
+          opt.setAttribute('data-rate', m.rate);
+          opt.textContent = `${m.name} (${m.desc})`;
+          if (idx === 0) opt.selected = true;
+          materialSelect.appendChild(opt);
+        });
+      }
+    } catch (e) {
+      console.error('Malzemeler okunamad─▒:', e);
+    }
+  }
+
+  // Load Custom Gallery Items from Admin if configured
+  function populateGalleryFromStorage() {
+    const saved = localStorage.getItem('ist3dye_gallery');
+    if (!saved) return;
+    try {
+      const items = JSON.parse(saved);
+      const grid = document.getElementById('galleryGrid');
+      if (grid && items && items.length > 0) {
+        grid.innerHTML = '';
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300';
+          div.setAttribute('data-category', item.category);
+          div.innerHTML = `
+            <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
+              <i data-lucide="box" class="w-24 h-24 text-brand-500/80 group-hover:scale-110 transition-transform duration-500"></i>
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700 capitalize">${item.category}</span>
+              <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">${item.material}</span>
+            </div>
+            <div class="p-6 space-y-2">
+              <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">${item.title}</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">${item.desc}</p>
+              <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
+                <span>${item.specs}</span>
+              </div>
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+        lucide.createIcons();
+      }
+    } catch (e) {
+      console.error('Galeri okunamad─▒:', e);
+    }
+  }
+
+  populateMaterialsFromStorage();
+  populateGalleryFromStorage();
+
+
   // ================= PRICE & WEIGHT CALCULATION =================
   function calculatePrice() {
     const cfg = getSiteConfig();
@@ -611,7 +673,7 @@ Merhaba, web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletm
     if (hiddenQual) hiddenQual.value = qualitySelect.options[qualitySelect.selectedIndex].text;
     if (hiddenCol) hiddenCol.value = colorSelect.value;
     if (hiddenQuantity) hiddenQuantity.value = pricing.qty;
-    if (hiddenPr) hiddenPr.value = `${pricing.totalPrice} ₺`;
+    if (hiddenPr) hiddenPr.value = `${pricing.totalPrice} TL`;
   });
 
   // ================= GALLERY FILTER =================
@@ -664,6 +726,6 @@ Merhaba, web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletm
   });
 
   // Initial setup
-  selectMaterial('pla');
+  selectMaterial(materialSelect && materialSelect.value ? materialSelect.value : 'pla');
   calculatePrice();
 });

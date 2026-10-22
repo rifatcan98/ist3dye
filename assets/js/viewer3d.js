@@ -22,6 +22,7 @@ class ThreeDViewer {
 
     // Scaling & Base measurement state
     this.currentScale = 1.0;
+    this.unitFactor = 1.0;
     this.baseDimensions = { x: 64, y: 64, z: 18 };
     this.baseVolumeCm3 = 25;
     this.currentModelName = 'Örnek Test Modeli';
@@ -128,7 +129,10 @@ class ThreeDViewer {
   setScale(factor) {
     if (!this.currentMesh || !this.baseDimensions) return;
     this.currentScale = factor;
-    this.currentMesh.scale.set(factor, factor, factor);
+    const total = factor * this.unitFactor;
+    this.currentMesh.scale.set(total, total, total);
+    // Keep the part sitting exactly on the build plate after scaling
+    this.currentMesh.position.y = (this.baseDimensions.y * factor) / 2;
 
     const x = Math.max(1, Math.round(this.baseDimensions.x * factor));
     const y = Math.max(1, Math.round(this.baseDimensions.y * factor));
@@ -148,7 +152,7 @@ class ThreeDViewer {
 
     // Adjust camera target
     if (this.controls) {
-      this.controls.target.set(0, (y * factor) / 2, 0);
+      this.controls.target.set(0, y / 2, 0);
       this.controls.update();
     }
 
@@ -173,6 +177,7 @@ class ThreeDViewer {
     this.baseDimensions.y = Math.round(this.baseDimensions.y * multiplier);
     this.baseDimensions.z = Math.round(this.baseDimensions.z * multiplier);
     this.baseVolumeCm3 = Math.round(this.baseVolumeCm3 * Math.pow(multiplier, 3) * 10) / 10;
+    this.unitFactor *= multiplier;
     this.setScale(this.currentScale);
   }
 
@@ -655,6 +660,7 @@ class ThreeDViewer {
     this.baseDimensions = { x, y, z };
     this.baseVolumeCm3 = this.modelVolumeCm3;
     this.currentScale = 1.0;
+    this.unitFactor = 1.0;
 
     // Reset scaling buttons in UI to 100%
     document.querySelectorAll('.scale-btn').forEach(btn => {
