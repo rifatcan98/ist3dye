@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cfg = getSiteConfig();
     const designMsg = encodeURIComponent("Merhaba, elimde hazır 3D model dosyası veya teknik çizim yok. Bir parçamın 3D modellenmesi ve baskısı için tasarım desteği almak istiyorum.");
     if (whatsappDesignBtn) {
-      whatsappDesignBtn.href = `https://wa.me/${cfg.whatsappPhone || '905000000000'}?text=${designMsg}`;
+      whatsappDesignBtn.href = `https://api.whatsapp.com/send?phone=${cfg.whatsappPhone || '905000000000'}&text=${designMsg}`;
     }
     designHelpModal?.classList.remove('hidden');
     if (window.lucide) lucide.createIcons();
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const note = userNote.value.trim();
 
     const speedText = (selectedSpeed === 'express') 
-      ? '⚡ 24 Saat Ekspres Baskı (+%25 Öncelikli)' 
+      ? '24 Saat Ekspres Baskı (+%25 Hızlı)' 
       : 'Standart Üretim (2-3 İş Günü)';
 
     const scaleText = (currentModel.scale !== 1.0)
@@ -523,47 +523,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // Dynamic notes & requests block
     const notesList = [];
     if (note) {
-      notesList.push(`• *Müşteri Notu:* ${note}`);
+      notesList.push(`• Müşteri Notu: ${note}`);
     }
     if (ndaCheckbox?.checked) {
-      notesList.push('• *Kurumsal Gizlilik (NDA):* Gizlilik Sözleşmesi Talep Edilmektedir 🔒');
+      notesList.push('• Gizlilik: Kurumsal NDA Sözleşmesi Talep Edildi');
     }
     if (currentModel.isOversize) {
-      notesList.push('• *Ebat Bildirimi:* Parça 340×320×340 mm alanını aşıyor, parçalı üretim/montaj önerisi isteniyor ⚠️');
+      notesList.push('• Ebat Bildirimi: Parça 340×320×340 mm alanını aşıyor, montajlı/parçalı üretim önerisi isteniyor');
     }
 
     let notesSection = '';
     if (notesList.length > 0) {
-      notesSection = `\n📝 *ÖZEL TALEPLER & NOTLAR*\n${notesList.join('\n')}\n`;
+      notesSection = `\n[ ÖZEL TALEPLER & NOTLAR ]\n${notesList.join('\n')}\n`;
     }
 
     const message = 
-`🖨️ *ist3Dye.com | 3D Baskı Teklif Talebi*
-────────────────────────────
+`════════════════════════════
+*ist3Dye.com | 3D BASKI TEKLİF TALEBİ*
+════════════════════════════
 
-📦 *MODEL BİLGİLERİ*
-• *Dosya:* ${currentModel.name} (${currentModel.format})${scaleText}
-• *Boyutlar:* ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
-• *Ağırlık & Süre:* ${pricing.weightText} | ${pricing.printTimeText}
+[ MODEL BİLGİLERİ ]
+• Dosya: ${currentModel.name} (${currentModel.format})${scaleText}
+• Boyutlar: ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
+• Ağırlık & Süre: ${pricing.weightText} | ${pricing.printTimeText}
 
-⚙️ *ÜRETİM PARAMETRELERİ*
-• *Malzeme:* ${materialName}
-• *Renk:* ${colorText}
-• *İç Doluluk:* %${selectedInfill}
-• *Katman:* ${qualityText}
-• *Üretim Hızı:* ${speedText}
-• *Sipariş Adedi:* ${pricing.qty} Adet
+[ BASKI PARAMETRELERİ ]
+• Malzeme: ${materialName}
+• Renk: ${colorText}
+• İç Doluluk: %${selectedInfill}
+• Katman Kalitesi: ${qualityText}
+• Üretim Hızı: ${speedText}
+• Sipariş Adedi: ${pricing.qty} Adet
 ${notesSection}
-────────────────────────────
-💰 *TAHMİNİ TOPLAM: ${pricing.totalPrice.toLocaleString('tr-TR')} TL*
-_(+KDV / Kargo Hariç)_
-────────────────────────────
+════════════════════════════
+*TAHMİNİ TOPLAM: ${pricing.totalPrice.toLocaleString('tr-TR')} TL*
+(+KDV / Kargo Hariç)
+════════════════════════════
 
-👋 *Merhaba,* web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletmek ve kesin sipariş/üretim onayı almak istiyorum. Yardımcı olabilir misiniz?`;
+Merhaba, web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletmek ve kesin sipariş onayı almak istiyorum. Yardımcı olabilir misiniz?`;
 
     const cfg = getSiteConfig();
     const encoded = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${cfg.whatsappPhone || '905000000000'}?text=${encoded}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cfg.whatsappPhone || '905000000000'}&text=${encoded}`;
     window.open(whatsappUrl, '_blank');
   });
 
