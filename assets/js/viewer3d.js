@@ -1,4 +1,4 @@
-// Three.js 3D Viewer & Multiformat 3D/CAD Loader for ist3Dye.com
+// Three.js 3D Viewer & Multiformat 3D/CAD Loader (STL, 3MF, OBJ, STEP) for ist3Dye.com
 
 class ThreeDViewer {
   constructor(canvasBoxId) {
@@ -20,6 +20,9 @@ class ThreeDViewer {
     this.modelVolumeCm3 = 25; // default fallback volume
     this.autoRotate = false;
 
+    // Maximum printer build volume dimensions (mm)
+    this.maxBuildVolume = { x: 340, y: 320, z: 340 };
+
     this.init();
   }
 
@@ -34,8 +37,8 @@ class ThreeDViewer {
     this.scene.background = new THREE.Color(0x090d16);
 
     // 2. Camera
-    this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    this.camera.position.set(90, 80, 110);
+    this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);
+    this.camera.position.set(120, 100, 140);
 
     // 3. Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -49,8 +52,8 @@ class ThreeDViewer {
       this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enableDamping = true;
       this.controls.dampingFactor = 0.05;
-      this.controls.maxDistance = 600;
-      this.controls.minDistance = 10;
+      this.controls.maxDistance = 3000;
+      this.controls.minDistance = 5;
     }
 
     // 5. Lighting
@@ -58,14 +61,14 @@ class ThreeDViewer {
     this.scene.add(ambientLight);
 
     const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.9);
-    dirLight1.position.set(100, 160, 100);
+    dirLight1.position.set(200, 300, 200);
     this.scene.add(dirLight1);
 
     const dirLight2 = new THREE.DirectionalLight(0x3b82f6, 0.5);
-    dirLight2.position.set(-100, -50, -100);
+    dirLight2.position.set(-200, -100, -200);
     this.scene.add(dirLight2);
 
-    // 6. Build Plate / Grid Helper (340 x 320 mm Build Volume Base)
+    // 6. Build Plate / Grid Helper (340 x 320 mm Build Plate Representation)
     this.gridHelper = new THREE.GridHelper(340, 34, 0x3b82f6, 0x1e293b);
     this.gridHelper.position.y = -0.1;
     this.scene.add(this.gridHelper);
@@ -99,7 +102,7 @@ class ThreeDViewer {
 
   resetCamera() {
     if (!this.camera || !this.controls) return;
-    this.camera.position.set(90, 80, 110);
+    this.camera.position.set(120, 100, 140);
     this.controls.target.set(0, 20, 0);
     this.controls.update();
   }
@@ -111,20 +114,119 @@ class ThreeDViewer {
     }
   }
 
-  // ================= MAIN FILE HANDLER =================
+  // ================= MAIN FILE ROUTER =================
   loadFile(file) {
     const ext = file.name.split('.').pop().toLowerCase();
     if (this.fileNameEl) this.fileNameEl.textContent = file.name;
 
-    if (ext === 'stl') {
+    if (ext === '3mf') {
+      this.load3MF(file);
+    } else if (ext === 'stl') {
       this.loadSTL(file);
     } else if (ext === 'obj') {
       this.loadOBJ(file);
-    } else if (ext === 'step' || ext === 'stp' || ext === '3mf') {
-      this.loadCADModel(file, ext);
+    } else if (ext === 'step' || ext === 'stp') {
+      this.loadStepFile(file);
     } else {
-      this.loadSTL(file); // fallback attempt
+      this.loadSTL(file);
     }
+  }
+
+  // ================= 3MF LOADER (Exact XML & Geometry Parser) =================
+  load3MF(file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const buffer = e.target.result;
+        if (typeof JSZip === 'undefined') {
+          throw new Error('JSZip kütüphanesi yüklenemedi.');
+        }
+
+        const zip = await JSZip.loadAsync(buffer);
+        let modelXmlText = null;
+
+        // Search for the 3D model XML file in the archive
+        for (const filename of Object.keys(zip.files)) {
+          if (filename.toLowerCase().endsWith('.model') || filename.toLowerCase().includes('3dmodel')) {
+            modelXmlText = await zip.files[filename].async('string');
+            break;
+          }
+        }
+
+        if (!modelXmlText) {
+          throw new Error('3MF arşivi içinde 3D model tanımı bulunamadı.');
+        }
+
+        const geometry = this.parse3MFXml(modelXmlText);
+        if (geometry) {
+          this.displayGeometry(geometry, file.name, '3MF');
+        } else {
+          throw new Error('3MF geometrisi okunamadı.');
+        }
+      } catch (err) {
+        console.error('3MF Çözümleme Hatası:', err);
+        alert('3MF dosyası çözümlenemedi: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  parse3MFXml(xmlText) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'application/xml');
+
+    // Unit scale handling (default millimeter)
+    const modelTag = doc.getElementsByTagName('model')[0];
+    let unitScale = 1.0;
+    if (modelTag) {
+      const unit = (modelTag.getAttribute('unit') || 'millimeter').toLowerCase();
+      if (unit === 'inch') unitScale = 25.4;
+      else if (unit === 'centimeter') unitScale = 10.0;
+      else if (unit === 'meter') unitScale = 1000.0;
+      else if (unit === 'micron') unitScale = 0.001;
+    }
+
+    const allPositions = [];
+
+    // Extract all <mesh> elements across all <object> tags
+    const meshNodes = doc.getElementsByTagName('mesh');
+    for (let m = 0; m < meshNodes.length; m++) {
+      const meshNode = meshNodes[m];
+      const vertexNodes = meshNode.getElementsByTagName('vertex');
+      const vertices = [];
+
+      for (let i = 0; i < vertexNodes.length; i++) {
+        const v = vertexNodes[i];
+        vertices.push(
+          (parseFloat(v.getAttribute('x')) || 0) * unitScale,
+          (parseFloat(v.getAttribute('y')) || 0) * unitScale,
+          (parseFloat(v.getAttribute('z')) || 0) * unitScale
+        );
+      }
+
+      const triangleNodes = meshNode.getElementsByTagName('triangle');
+      for (let i = 0; i < triangleNodes.length; i++) {
+        const t = triangleNodes[i];
+        const v1 = parseInt(t.getAttribute('v1'), 10);
+        const v2 = parseInt(t.getAttribute('v2'), 10);
+        const v3 = parseInt(t.getAttribute('v3'), 10);
+
+        if (vertices[v1 * 3] !== undefined && vertices[v2 * 3] !== undefined && vertices[v3 * 3] !== undefined) {
+          allPositions.push(
+            vertices[v1 * 3 + 0], vertices[v1 * 3 + 1], vertices[v1 * 3 + 2],
+            vertices[v2 * 3 + 0], vertices[v2 * 3 + 1], vertices[v2 * 3 + 2],
+            vertices[v3 * 3 + 0], vertices[v3 * 3 + 1], vertices[v3 * 3 + 2]
+          );
+        }
+      }
+    }
+
+    if (allPositions.length === 0) return null;
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(allPositions, 3));
+    geometry.computeVertexNormals();
+    return geometry;
   }
 
   // ================= STL LOADER (Binary & ASCII) =================
@@ -135,7 +237,7 @@ class ThreeDViewer {
         const buffer = e.target.result;
         let geometry = null;
 
-        // Try Three.js native STLLoader first if available
+        // Try Three.js native STLLoader first
         if (THREE.STLLoader) {
           try {
             geometry = new THREE.STLLoader().parse(buffer);
@@ -152,7 +254,7 @@ class ThreeDViewer {
         if (geometry) {
           this.displayGeometry(geometry, file.name, 'STL');
         } else {
-          throw new Error('Geometri oluşturulamadı');
+          throw new Error('STL geometrisi oluşturulamadı');
         }
       } catch (err) {
         console.error('STL okuma hatası:', err);
@@ -210,7 +312,7 @@ class ThreeDViewer {
         normals[baseIdx + 2] = nz;
       }
 
-      offset += 2; // attribute byte count
+      offset += 2;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -278,7 +380,6 @@ class ThreeDViewer {
           return vIdx > 0 ? vIdx - 1 : rawVertices.length + vIdx;
         });
 
-        // Triangulate face
         for (let j = 1; j < indices.length - 1; j++) {
           const v0 = rawVertices[indices[0]];
           const v1 = rawVertices[indices[j]];
@@ -296,64 +397,52 @@ class ThreeDViewer {
     return geometry;
   }
 
-  // ================= CAD MODEL (STEP / STP / 3MF) =================
-  loadCADModel(file, ext) {
-    // Determine realistic engineering scale based on file size
-    const sizeKB = Math.round(file.size / 1024);
-    let estWidth = 70;
-    let estDepth = 60;
-    let estHeight = 35;
+  // ================= STEP / STP CAD LOADER =================
+  loadStepFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target.result;
+        // Parse actual CARTESIAN_POINT coords to find real CAD bounding dimensions
+        const pointRegex = /CARTESIAN_POINT\s*\(\s*'[^']*'\s*,\s*\(\s*([-\d.eE+]+)\s*,\s*([-\d.eE+]+)\s*,\s*([-\d.eE+]+)\s*\)\s*\)/g;
+        let match;
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let minZ = Infinity, maxZ = -Infinity;
+        let count = 0;
 
-    if (sizeKB > 5000) {
-      estWidth = 140; estDepth = 110; estHeight = 65;
-    } else if (sizeKB > 1500) {
-      estWidth = 95; estDepth = 80; estHeight = 45;
-    } else if (sizeKB < 300) {
-      estWidth = 45; estDepth = 40; estHeight = 25;
-    }
+        while ((match = pointRegex.exec(text)) !== null) {
+          const px = parseFloat(match[1]);
+          const py = parseFloat(match[2]);
+          const pz = parseFloat(match[3]);
+          if (!isNaN(px) && !isNaN(py) && !isNaN(pz)) {
+            if (px < minX) minX = px; if (px > maxX) maxX = px;
+            if (py < minY) minY = py; if (py > maxY) maxY = py;
+            if (pz < minZ) minZ = pz; if (pz > maxZ) maxZ = pz;
+            count++;
+          }
+        }
 
-    // Create stylized technical CAD engineering solid geometry
-    const shape = new THREE.Shape();
-    const w = estWidth / 2;
-    const d = estDepth / 2;
-    const r = 8; // rounded corners
+        let dx = 80, dy = 60, dz = 40;
+        if (count >= 2 && isFinite(minX) && isFinite(maxX)) {
+          dx = Math.max(5, Math.round(Math.abs(maxX - minX)));
+          dy = Math.max(5, Math.round(Math.abs(maxY - minY)));
+          dz = Math.max(5, Math.round(Math.abs(maxZ - minZ)));
+        }
 
-    shape.moveTo(-w + r, -d);
-    shape.lineTo(w - r, -d);
-    shape.quadraticCurveTo(w, -d, w, -d + r);
-    shape.lineTo(w, d - r);
-    shape.quadraticCurveTo(w, d, w - r, d);
-    shape.lineTo(-w + r, d);
-    shape.quadraticCurveTo(-w, d, -w, d - r);
-    shape.lineTo(-w, -d + r);
-    shape.quadraticCurveTo(-w, -d, -w + r, -d);
+        // Clean CAD bounding envelope representing actual dimensions without artificial holes
+        const geometry = new THREE.BoxGeometry(dx, dz, dy);
+        geometry.center();
 
-    // Add 2 mounting bore holes typical of CAD parts
-    const hole1 = new THREE.Path();
-    hole1.absarc(-w + 16, 0, 6, 0, Math.PI * 2, true);
-    shape.holes.push(hole1);
-
-    const hole2 = new THREE.Path();
-    hole2.absarc(w - 16, 0, 6, 0, Math.PI * 2, true);
-    shape.holes.push(hole2);
-
-    const extrudeSettings = {
-      depth: estHeight,
-      bevelEnabled: true,
-      bevelSegments: 4,
-      steps: 2,
-      bevelSize: 2,
-      bevelThickness: 2
+        this.displayGeometry(geometry, file.name, 'STEP', {
+          isCAD: true,
+          pointCount: count
+        });
+      } catch (err) {
+        console.error('STEP Okuma Hatası:', err);
+      }
     };
-
-    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    geometry.rotateX(Math.PI / 2);
-    geometry.center();
-
-    this.displayGeometry(geometry, file.name, ext.toUpperCase(), {
-      isCAD: true,
-      fileSizeText: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-    });
+    reader.readAsText(file.slice(0, 5000000));
   }
 
   // ================= DEMO MODEL LOADER =================
@@ -393,7 +482,7 @@ class ThreeDViewer {
     this.displayGeometry(geometry, 'ornek_muhendislik_parcasi.stl', 'DEMO');
   }
 
-  // ================= EXACT VOLUME CALCULATION =================
+  // ================= EXACT MATHEMATICAL VOLUME (Signed Tetrahedron Sum) =================
   calculateExactMeshVolume(geometry) {
     const pos = geometry.attributes.position;
     if (!pos) return 0;
@@ -409,7 +498,7 @@ class ThreeDViewer {
       p2.fromBufferAttribute(pos, i + 1);
       p3.fromBufferAttribute(pos, i + 2);
 
-      // Signed tetrahedron volume via determinant
+      // Determinant of tetrahedron vertices
       const v = (
         -p3.x * p2.y * p1.z +
          p2.x * p3.y * p1.z +
@@ -439,7 +528,7 @@ class ThreeDViewer {
     geometry.computeVertexNormals();
     geometry.computeBoundingBox();
 
-    // 3D printed engineering material look
+    // 3D printed part material
     const material = new THREE.MeshStandardMaterial({
       color: 0x3b82f6,
       roughness: 0.35,
@@ -449,12 +538,12 @@ class ThreeDViewer {
 
     this.currentMesh = new THREE.Mesh(geometry, material);
 
-    // Calculate dimensions
+    // Calculate real dimensions
     const bbox = geometry.boundingBox;
     const size = new THREE.Vector3();
     bbox.getSize(size);
 
-    // Center mesh directly on the print bed (y = 0)
+    // Center mesh directly on top of the print bed (y = 0)
     geometry.center();
     this.currentMesh.position.y = size.y / 2;
     this.scene.add(this.currentMesh);
@@ -466,39 +555,52 @@ class ThreeDViewer {
     // Calculate exact volume
     let exactVolume = this.calculateExactMeshVolume(geometry);
     if (!exactVolume || exactVolume < 0.5) {
-      // Fallback bounding box volume estimation
+      // Bounding box approximation if open surface mesh
       exactVolume = Math.max(5, (x * y * z * 0.00045));
     }
     this.modelVolumeCm3 = Math.max(2, Math.round(exactVolume * 10) / 10);
 
     const triCount = geometry.attributes.position ? Math.round(geometry.attributes.position.count / 3) : 0;
 
+    // Check if model exceeds printer build volume (340 x 320 x 340 mm)
+    const isOversize = (x > this.maxBuildVolume.x || z > this.maxBuildVolume.y || y > this.maxBuildVolume.z);
+
     // Update bottom specs bar under 3D viewer
     if (this.specsBar) this.specsBar.classList.remove('hidden');
-    if (this.dimsEl) this.dimsEl.textContent = `${x} × ${z} × ${y} mm`;
-    if (this.volEl) this.volEl.textContent = `~${this.modelVolumeCm3} cm³`;
+    if (this.dimsEl) {
+      this.dimsEl.textContent = `${x} × ${z} × ${y} mm`;
+      if (isOversize) {
+        this.dimsEl.innerHTML = `<span class="text-amber-400 font-bold">${x} × ${z} × ${y} mm (Aşıyor)</span>`;
+      }
+    }
+    if (this.volEl) this.volEl.textContent = `~${this.modelVolumeCm3.toLocaleString('tr-TR')} cm³`;
     if (this.trianglesEl) {
-      this.trianglesEl.textContent = meta.isCAD ? `CAD Katı (${meta.fileSizeText || 'Model'})` : `${triCount.toLocaleString('tr-TR')} Üçgen`;
+      this.trianglesEl.textContent = meta.isCAD ? `CAD Katı Model` : `${triCount.toLocaleString('tr-TR')} Üçgen`;
     }
 
-    // Fit camera smoothly
-    const maxDim = Math.max(size.x, size.y, size.z, 40);
-    this.camera.position.set(maxDim * 1.5, maxDim * 1.3, maxDim * 1.7);
+    // Auto fit camera smoothly to view entire part
+    const maxDim = Math.max(size.x, size.y, size.z, 50);
+    this.camera.position.set(maxDim * 1.6, maxDim * 1.3, maxDim * 1.7);
+    this.camera.near = Math.max(0.1, maxDim / 500);
+    this.camera.far = Math.max(5000, maxDim * 10);
+    this.camera.updateProjectionMatrix();
+
     if (this.controls) {
       this.controls.target.set(0, size.y / 2, 0);
       this.controls.update();
     }
 
-    // Trigger price calculation & analysis update on the right-hand form
+    // Trigger price calculation & analysis card update on the right-hand form
     if (window.triggerPriceUpdate) {
       window.triggerPriceUpdate({
         name,
         volumeCm3: this.modelVolumeCm3,
         x,
-        y: z, // Y/Z swapped for standard CAD horizontal depth vs height
+        y: z, // Width x Depth x Height
         z: y,
         triangles: triCount,
-        format
+        format,
+        isOversize
       });
     }
   }

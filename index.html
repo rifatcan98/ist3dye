@@ -47,6 +47,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- JSZip for native 3MF archive parsing -->
+  <script src="assets/js/jszip.min.js"></script>
 
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -536,6 +538,12 @@
                     <span class="text-[10px] text-slate-400 block mb-0.5">Baskı Süresi</span>
                     <span id="quoteTime" class="font-bold text-brand-400 text-xs">~1.5 Saat</span>
                   </div>
+                </div>
+
+                                <!-- Oversize Warning Banner -->
+                <div id="oversizeWarning" class="hidden p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] flex items-center gap-2">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 shrink-0"></i>
+                  <span><strong>Ebat Uyarısı:</strong> Parçanız maksimum tek parça baskı alanını (340×320×340 mm) aşıyor. Parçalı üretim veya ölçeklendirme gerekir.</span>
                 </div>
 
                 <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">

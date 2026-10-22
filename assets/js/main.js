@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     z: 18,
     triangles: 1440,
     format: 'DEMO',
+    isOversize: false,
     hasFile: false
   };
 
@@ -66,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modelStatusDot = document.getElementById('modelStatusDot');
   const modelStatusText = document.getElementById('modelStatusText');
   const modelFormatBadge = document.getElementById('modelFormatBadge');
+  const oversizeWarning = document.getElementById('oversizeWarning');
 
   const infillLabel = document.getElementById('infillLabel');
   const infillBtns = document.querySelectorAll('.infill-btn');
@@ -173,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const estimatedGrams = Math.max(5, Math.round(rawGrams));
 
     // Baskı Süresi Tahmini:
-    // Standart 0.20mm katmanda saatte ~22 gram basılır
     let speedPerHour = 22;
     if (qualityVal >= 0.28) speedPerHour = 32;
     else if (qualityVal <= 0.12) speedPerHour = 14;
@@ -182,12 +183,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const printHours = Math.floor(totalHours);
     const printMins = Math.round((totalHours - printHours) * 60);
     let printTimeText = '';
-    if (printHours === 0) {
+    if (printHours >= 24) {
+      const days = Math.floor(printHours / 24);
+      const remHours = printHours % 24;
+      printTimeText = `~${days} Gün ${remHours}s`;
+    } else if (printHours === 0) {
       printTimeText = `~${Math.max(20, printMins)} Dk`;
     } else if (printMins === 0) {
       printTimeText = `~${printHours} Saat`;
     } else {
       printTimeText = `~${printHours}s ${printMins}dk`;
+    }
+
+    // Ağırlık Metni
+    let weightText = '';
+    if (estimatedGrams >= 1000) {
+      weightText = `~${(estimatedGrams / 1000).toFixed(1)} kg`;
+    } else {
+      weightText = `~${estimatedGrams} gr`;
     }
 
     // Birim Fiyat
@@ -203,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update UI Elements
     if (calculatedPriceEl) calculatedPriceEl.textContent = `${totalPrice.toLocaleString('tr-TR')} ₺`;
-    if (quoteGramsEl) quoteGramsEl.textContent = `~${estimatedGrams} gr`;
+    if (quoteGramsEl) quoteGramsEl.textContent = weightText;
     if (quoteDimsEl) quoteDimsEl.textContent = `${currentModel.x}×${currentModel.y}×${currentModel.z} mm`;
     if (quoteTimeEl) quoteTimeEl.textContent = printTimeText;
     if (quoteUnitPriceEl) {
@@ -226,7 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
         : 'text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono shrink-0';
     }
 
-    return { unitPrice, totalPrice, estimatedGrams, printTimeText, qty };
+    // Oversize Warning Banner
+    if (oversizeWarning) {
+      if (currentModel.isOversize) {
+        oversizeWarning.classList.remove('hidden');
+      } else {
+        oversizeWarning.classList.add('hidden');
+      }
+    }
+
+    return { unitPrice, totalPrice, estimatedGrams, weightText, printTimeText, qty };
   }
 
   // ================= 3D VIEWER HOOK =================
@@ -242,9 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
       currentModel.z = data.z || currentModel.z;
       currentModel.triangles = data.triangles || currentModel.triangles;
       currentModel.format = data.format || 'STL';
+      currentModel.isOversize = !!data.isOversize;
       currentModel.hasFile = true;
     }
     calculatePrice();
+    if (window.lucide) lucide.createIcons();
   };
 
   // Color selection updates 3D model color
@@ -351,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.viewer3DInstance) {
       window.viewer3DInstance.loadFile(file);
     } else {
-      // Fallback if viewer is not ready
       const ext = file.name.split('.').pop().toUpperCase();
       currentModel.name = file.name;
       currentModel.hasFile = true;
@@ -385,19 +408,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorText = colorSelect.value;
     const note = userNote.value.trim() ? userNote.value.trim() : 'Yok';
 
+    const oversizeNote = currentModel.isOversize 
+      ? `\n⚠️ *Not:* Model tek parça baskı alanını (340x320x340mm) aşıyor, parçalı üretim/montaj talep ediliyor.` 
+      : '';
+
     const message = 
 `*ist3Dye.com - 3D Baskı Fiyat Teklifi Talebi*
 ---------------------------------------
 📂 *Model / Dosya:* ${currentModel.name} (${currentModel.format})
 📐 *Parça Ebatları:* ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
-⚖️ *Tahmini Ağırlık:* ~${pricing.estimatedGrams} gram
+⚖️ *Tahmini Ağırlık:* ${pricing.weightText}
 ⏱️ *Baskı Süresi:* ${pricing.printTimeText}
 ⚙️ *Malzeme:* ${materialName}
 🎯 *Doluluk (Infill):* %${selectedInfill}
 📏 *Katman Kalitesi:* ${qualityText}
 🎨 *Renk:* ${colorText}
 🔢 *Adet:* ${pricing.qty} adet
-📝 *Müşteri Notu:* ${note}
+📝 *Müşteri Notu:* ${note}${oversizeNote}
 ---------------------------------------
 💰 *Tahmini Toplam Tutar:* ${pricing.totalPrice.toLocaleString('tr-TR')} ₺
 ---------------------------------------
@@ -418,7 +445,7 @@ Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif 
     const pricing = calculatePrice();
     const contactMsg = document.getElementById('contactMessage');
     if (contactMsg) {
-      contactMsg.value = `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ~${pricing.estimatedGrams} gr | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Renk: ${colorSelect.value} | Adet: ${pricing.qty} | Tahmini Tutar: ${pricing.totalPrice} TL`;
+      contactMsg.value = `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ${pricing.weightText} | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Renk: ${colorSelect.value} | Adet: ${pricing.qty} | Tahmini Tutar: ${pricing.totalPrice} TL`;
     }
   });
 
@@ -443,7 +470,7 @@ Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif 
     const hiddenQuantity = document.getElementById('hiddenQty');
     const hiddenPr = document.getElementById('hiddenPrice');
 
-    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ~${pricing.estimatedGrams}gr)` : 'Model yüklenmedi';
+    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ${pricing.weightText})` : 'Model yüklenmedi';
     if (hiddenMat) hiddenMat.value = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
     if (hiddenInf) hiddenInf.value = `%${selectedInfill}`;
     if (hiddenQual) hiddenQual.value = qualitySelect.options[qualitySelect.selectedIndex].text;
