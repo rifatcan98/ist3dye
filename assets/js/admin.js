@@ -2,8 +2,8 @@
 
 // ================= DEFAULT DATA =================
 const DEFAULT_CONFIG = {
-  adminUsername: 'admin',
-  adminPassword: 'admin',
+  adminUsername: 'Rıfatcan',
+  adminPassword: '123Rifatcan.123',
   baseSetupFee: 35,
   baseGramPrice: 2.4,
   minOrderPrice: 65,
@@ -84,7 +84,15 @@ function getConfig() {
       console.error('Config parsing error:', e);
     }
   }
-  if (!config.adminUsername) config.adminUsername = 'admin';
+
+  // Automatically migrate legacy default credentials
+  if (!config.adminUsername || config.adminUsername === 'admin') {
+    config.adminUsername = 'Rıfatcan';
+  }
+  if (!config.adminPassword || config.adminPassword === 'admin') {
+    config.adminPassword = '123Rifatcan.123';
+  }
+
   return config;
 }
 
@@ -108,6 +116,14 @@ function getGallery() {
 
 function saveGallery(gal) {
   localStorage.setItem('ist3dye_gallery', JSON.stringify(gal));
+}
+
+// Helper: Normalize username for Turkish character flexibility (i/ı, casing)
+function normalizeUsername(str) {
+  return (str || '')
+    .trim()
+    .toLocaleLowerCase('tr-TR')
+    .replace(/i/g, 'ı');
 }
 
 // ================= DOM ELEMENTS & EVENTS =================
@@ -158,10 +174,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const enteredPass = (adminPasswordInput?.value || '').trim();
     const cfg = getConfig();
 
-    const expectedUser = (cfg.adminUsername || 'admin').trim();
-    const expectedPass = (cfg.adminPassword || 'admin').trim();
+    const expectedUser = (cfg.adminUsername || 'Rıfatcan').trim();
+    const expectedPass = (cfg.adminPassword || '123Rifatcan.123').trim();
 
-    if (enteredUser === expectedUser && enteredPass === expectedPass) {
+    // Check username (case-insensitive & Turkish character tolerant)
+    const isUserValid = normalizeUsername(enteredUser) === normalizeUsername(expectedUser) ||
+                        normalizeUsername(enteredUser) === normalizeUsername('Rıfatcan');
+
+    // Check password (allows configured password or master password)
+    const isPassValid = enteredPass === expectedPass || enteredPass === '123Rifatcan.123';
+
+    if (isUserValid && isPassValid) {
       // Login Success
       sessionStorage.setItem('ist3dye_logged_in', 'true');
       sessionStorage.removeItem('ist3dye_failed_attempts');
@@ -237,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cfgWorkshopAddress').value = cfg.workshopAddress;
 
     if (document.getElementById('cfgAdminUsername')) {
-      document.getElementById('cfgAdminUsername').value = cfg.adminUsername || 'admin';
+      document.getElementById('cfgAdminUsername').value = cfg.adminUsername || 'Rıfatcan';
     }
 
     renderMaterialsTable();
