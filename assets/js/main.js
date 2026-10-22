@@ -1129,8 +1129,118 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
     });
   }
 
+  // ================= DYNAMIC WORKING HOURS & STATUS =================
+  function updateWorkingHoursStatus() {
+    // Current time in Turkey (Europe/Istanbul - UTC+3)
+    const now = new Date();
+    const trTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Istanbul' }));
+    const day = trTime.getDay(); // 0 = Pazar, 1 = Pzt, ..., 6 = Cmt
+    const hours = trTime.getHours();
+    const minutes = trTime.getMinutes();
+    const currentTime = hours + minutes / 60;
+
+    let isActive = false;
+    let nextWorkTime = 'Hafta içi 09:00';
+
+    if (day >= 1 && day <= 5) {
+      // Hafta içi: 09:00 - 19:00
+      if (currentTime >= 9.0 && currentTime < 19.0) {
+        isActive = true;
+      } else if (currentTime < 9.0) {
+        nextWorkTime = 'Bugün 09:00';
+      } else if (day === 5) {
+        nextWorkTime = 'Yarın (Cmt) 10:00';
+      } else {
+        nextWorkTime = 'Yarın 09:00';
+      }
+    } else if (day === 6) {
+      // Cumartesi: 10:00 - 16:00
+      if (currentTime >= 10.0 && currentTime < 16.0) {
+        isActive = true;
+      } else if (currentTime < 10.0) {
+        nextWorkTime = 'Bugün 10:00';
+      } else {
+        nextWorkTime = 'Pazartesi 09:00';
+      }
+    } else {
+      // Pazar: Kapalı
+      nextWorkTime = 'Pazartesi 09:00';
+    }
+
+    const dotEl = document.getElementById('supportStatusDot');
+    const titleEl = document.getElementById('supportStatusTitle');
+    const descEl = document.getElementById('supportStatusDesc');
+    const quoteBadge = document.getElementById('quoteResponseBadge');
+    const contactBadge = document.getElementById('contactResponseBadge');
+
+    if (isActive) {
+      // AKTİF (Mesai Saatleri İçi: Yeşil Yanıp Sönen Işık)
+      if (dotEl) {
+        dotEl.innerHTML = `
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        `;
+      }
+      if (titleEl) {
+        titleEl.textContent = 'Canlı Destek & Atölye Hattı Aktif';
+        titleEl.className = 'text-xs font-bold text-white';
+      }
+      if (descEl) {
+        descEl.className = 'flex items-center gap-2 text-emerald-400 font-semibold';
+        descEl.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i><span>Genellikle 15 dakika içinde yanıt verilir</span>`;
+      }
+
+      const activeBadgeHtml = `
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Genellikle 15 dakika içinde yanıt verilir • Hafta içi: 09:00 - 19:00</span>
+      `;
+      if (quoteBadge) {
+        quoteBadge.className = 'flex items-center justify-center gap-2 text-[11px] text-emerald-400 font-medium';
+        quoteBadge.innerHTML = activeBadgeHtml;
+      }
+      if (contactBadge) {
+        contactBadge.className = 'flex items-center justify-center gap-2 text-[11px] text-emerald-400 font-medium';
+        contactBadge.innerHTML = activeBadgeHtml;
+      }
+    } else {
+      // PASİF (Mesai Saatleri Dışı: Kırmızı Sabit Işık & Pasif Başlık)
+      if (dotEl) {
+        dotEl.innerHTML = `
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.95)]"></span>
+        `;
+      }
+      if (titleEl) {
+        titleEl.textContent = 'Canlı Destek & Atölye Hattı Pasif';
+        titleEl.className = 'text-xs font-bold text-slate-300';
+      }
+      if (descEl) {
+        descEl.className = 'flex items-center gap-2 text-rose-400 font-medium';
+        descEl.innerHTML = `<i data-lucide="moon" class="w-3.5 h-3.5 shrink-0"></i><span>Şu an mesai dışı • Mesajınızı iletebilirsiniz, ilk mesaide (${nextWorkTime}) yanıtlanır</span>`;
+      }
+
+      const passiveBadgeHtml = `
+        <span class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.8)]"></span>
+        <span>Şu an mesai dışı (Pasif) • Mesajınız ilk mesaide (${nextWorkTime}) yanıtlanacaktır</span>
+      `;
+      if (quoteBadge) {
+        quoteBadge.className = 'flex items-center justify-center gap-2 text-[11px] text-slate-400 font-medium';
+        quoteBadge.innerHTML = passiveBadgeHtml;
+      }
+      if (contactBadge) {
+        contactBadge.className = 'flex items-center justify-center gap-2 text-[11px] text-slate-400 font-medium';
+        contactBadge.innerHTML = passiveBadgeHtml;
+      }
+    }
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+
   // Initial setup
   selectMaterial(materialSelect && materialSelect.value ? materialSelect.value : 'pla');
   updateInfillUI(20);
+  updateWorkingHoursStatus();
+  setInterval(updateWorkingHoursStatus, 60000);
   calculatePrice();
 });
