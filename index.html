@@ -355,14 +355,29 @@
               </p>
             </div>
 
-            <!-- Demo Model Load Button -->
-            <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-center gap-3">
+            <!-- Demo Model Load & Design Help Buttons -->
+            <div class="mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-center gap-3">
               <span class="text-xs text-slate-400">Dosyanız yok mu?</span>
               <button type="button" id="loadDemoBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-brand-300 border border-slate-700 transition-colors flex items-center gap-1.5">
                 <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
                 Örnek 3D Parça Yükle & Test Et
               </button>
+              <button type="button" id="noModelHelpBtn" class="px-3 py-1.5 rounded-lg bg-orange-500/10 hover:bg-orange-500/20 text-xs font-medium text-orange-400 border border-orange-500/30 transition-colors flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-orange-400"></i>
+                3D Çiziminiz Yok mu? (Tasarım Desteği)
+              </button>
             </div>
+          </div>
+
+          <!-- Trust & NDA Banner -->
+          <div class="px-4 py-2.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <div class="flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+              <span>Dosyalarınız <strong>256-bit SSL</strong> ile korunur ve asla 3. taraflarla paylaşılmaz.</span>
+            </div>
+            <span class="hidden sm:inline-flex items-center gap-1 text-slate-500 font-mono text-[11px]">
+              <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i> NDA Uyumlu
+            </span>
           </div>
 
           <!-- 3D Interactive Viewer Canvas Card -->
@@ -380,6 +395,28 @@
                 </button>
                 <button id="wireframeToggleBtn" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]">
                   Kafes Modu
+                </button>
+              </div>
+            </div>
+
+            <!-- Model Scale & Unit Toolbar -->
+            <div id="modelScaleToolbar" class="px-4 py-2 bg-slate-950/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-slate-400 font-medium mr-1 flex items-center gap-1">
+                  <i data-lucide="maximize-2" class="w-3 h-3 text-brand-400"></i> Ölçek:
+                </span>
+                <button type="button" class="scale-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors" data-scale="0.5">%50</button>
+                <button type="button" class="scale-btn px-2.5 py-1 rounded-lg bg-brand-600 text-white font-bold text-[11px] transition-colors active" data-scale="1.0">%100</button>
+                <button type="button" class="scale-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors" data-scale="1.5">%150</button>
+                <button type="button" class="scale-btn px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors" data-scale="2.0">%200</button>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] text-slate-500 mr-1">Birim:</span>
+                <button type="button" id="unitConvertInchBtn" title="Inç olarak çizilmiş parçayı milimetreye dönüştür (x25.4)" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-[10px] font-mono transition-colors">
+                  inç ➔ mm
+                </button>
+                <button type="button" id="unitConvertCmBtn" title="Santimetre olarak çizilmiş parçayı milimetreye dönüştür (x10)" class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-[10px] font-mono transition-colors">
+                  cm ➔ mm
                 </button>
               </div>
             </div>
@@ -429,9 +466,40 @@
               
               <!-- 1. Teknoloji & Malzeme -->
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  1. Baskı Malzemesi
-                </label>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    1. Baskı Malzemesi
+                  </label>
+                  <button type="button" id="openMaterialGuideBtn" class="text-xs text-brand-400 hover:text-brand-300 flex items-center gap-1 transition-colors font-medium">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+                    <span>Malzeme Kıyaslama Tablosu</span>
+                  </button>
+                </div>
+
+                <!-- Fast Material Pills -->
+                <div class="grid grid-cols-5 gap-1.5 mb-2.5">
+                  <button type="button" class="mat-pill active p-2 rounded-xl border-2 border-brand-500 bg-brand-500/10 text-center transition-all group" data-mat="pla">
+                    <span class="text-xs font-bold text-white block">PLA</span>
+                    <span class="text-[10px] text-brand-400 block font-mono">55°C</span>
+                  </button>
+                  <button type="button" class="mat-pill p-2 rounded-xl border border-slate-700 bg-slate-950 text-center hover:border-slate-500 transition-all group" data-mat="petg">
+                    <span class="text-xs font-bold text-slate-300 block group-hover:text-white">PETG</span>
+                    <span class="text-[10px] text-slate-400 block font-mono">75°C</span>
+                  </button>
+                  <button type="button" class="mat-pill p-2 rounded-xl border border-slate-700 bg-slate-950 text-center hover:border-slate-500 transition-all group" data-mat="abs">
+                    <span class="text-xs font-bold text-slate-300 block group-hover:text-white">ABS</span>
+                    <span class="text-[10px] text-slate-400 block font-mono">100°C</span>
+                  </button>
+                  <button type="button" class="mat-pill p-2 rounded-xl border border-slate-700 bg-slate-950 text-center hover:border-slate-500 transition-all group" data-mat="asa">
+                    <span class="text-xs font-bold text-slate-300 block group-hover:text-white">ASA</span>
+                    <span class="text-[10px] text-slate-400 block font-mono">105°C UV</span>
+                  </button>
+                  <button type="button" class="mat-pill p-2 rounded-xl border border-slate-700 bg-slate-950 text-center hover:border-slate-500 transition-all group" data-mat="tpu">
+                    <span class="text-xs font-bold text-slate-300 block group-hover:text-white">TPU</span>
+                    <span class="text-[10px] text-cyan-400 block font-mono">Kauçuk</span>
+                  </button>
+                </div>
+
                 <select id="materialSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors">
                   <option value="pla" data-rate="1.0" selected>PLA (Standart & En Ekonomik - Dekoratif & Prototip)</option>
                   <option value="petg" data-rate="1.25">PETG (Yüksek Dayanıklılık & Dış Ortam Direnci)</option>
@@ -439,6 +507,10 @@
                   <option value="asa" data-rate="1.40">ASA (UV & Dış Hava Şartlarına Ultra Dayanıklı)</option>
                   <option value="tpu" data-rate="1.60">TPU Esnek (Kauçuk benzeri, Bükülebilir & Kırılmaz)</option>
                 </select>
+
+                <p id="selectedMaterialBrief" class="text-[11px] text-slate-400 mt-2 px-1 leading-relaxed">
+                  Ekonomik, prototip ve dekoratif parçalar için ideal (Isı: 55°C).
+                </p>
               </div>
 
               <!-- 2. Doluluk Oranı (Infill) -->
@@ -515,7 +587,41 @@
                 </div>
               </div>
 
-                            <!-- Live Model & Cost Analysis Card -->
+                            <!-- Üretim Hızı & Teslimat -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                  4. Üretim & Teslimat Hızı
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                  <button type="button" class="speed-btn active p-3 rounded-2xl border-2 border-brand-500 bg-brand-500/10 text-left transition-all" data-speed="standard">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-white">Standart Üretim</span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Normal</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400 block mt-1">2-3 İş Gününde Kargoda</span>
+                  </button>
+                  <button type="button" class="speed-btn p-3 rounded-2xl border border-slate-700 bg-slate-950 text-left hover:border-amber-500 transition-all" data-speed="express">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-amber-300 flex items-center gap-1">
+                        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Ekspres Baskı
+                      </span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold font-mono">+%25</span>
+                    </div>
+                    <span class="text-[11px] text-slate-400 block mt-1">24 Saatte Hızlı Teslimat</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- NDA Checkbox -->
+              <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 cursor-pointer hover:border-slate-700 transition-colors">
+                <input type="checkbox" id="ndaCheckbox" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 bg-slate-900 border-slate-700">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+                  <span>Kurumsal <strong>Gizlilik Sözleşmesi (NDA)</strong> talep ediyorum.</span>
+                </div>
+              </label>
+
+              <!-- Live Model & Cost Analysis Card -->
               <div id="modelAnalysisCard" class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3 transition-all">
                 <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-800/80">
                   <div class="flex items-center gap-2 truncate pr-2">
@@ -1041,6 +1147,140 @@
 
     </div>
   </footer>
+
+  <!-- ================= MODAL 1: MALZEME KIYASLAMA REHBERİ ================= -->
+  <div id="materialGuideModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-brand-400"></i>
+            <span>3D Baskı Malzeme Kıyaslama Rehberi</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Parçanızın mekanik, termal ve dış ortam gereksinimlerine göre en doğru filament türünü seçin.</p>
+        </div>
+        <button id="closeMaterialGuideBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- PLA -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">PLA (Polilaktik Asit)</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-semibold">En Ekonomik</span>
+              <span class="text-[10px] text-slate-400 font-mono">Max: 55°C</span>
+            </div>
+            <p class="text-xs text-slate-400">Hızlı prototipleme, dekoratif objeler, figürler ve iç mekan uygulamaları için mükemmel yüzey kalitesi ve sıfır çekme/bükülme riski sunar.</p>
+          </div>
+          <button type="button" class="select-guide-mat px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-bold text-white shrink-0 self-start sm:self-auto" data-mat="pla">Bu Malzemeyi Seç</button>
+        </div>
+
+        <!-- PETG -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">PETG (Glikol Modifiyeli PET)</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">En Popüler & Dayanıklı</span>
+              <span class="text-[10px] text-slate-400 font-mono">Max: 75°C</span>
+            </div>
+            <p class="text-xs text-slate-400">Suya, neme, kimyasallara ve darbelere karşı yüksek direnç. Mekanik fonksiyonel parçalar, dış kutular ve aparatlar için en dengeli malzemedir.</p>
+          </div>
+          <button type="button" class="select-guide-mat px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-bold text-white shrink-0 self-start sm:self-auto" data-mat="petg">Bu Malzemeyi Seç</button>
+        </div>
+
+        <!-- ABS -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">ABS (Mühendislik Termoplastiği)</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">Yüksek Isı & Darbe</span>
+              <span class="text-[10px] text-slate-400 font-mono">Max: 100°C</span>
+            </div>
+            <p class="text-xs text-slate-400">Otomotiv içi aparatlar, motor bölmesi yakınları ve sürtünmeli mekanik parçalar için yüksek sıcaklık ve darbe dayanımı sağlar. Zımparalanabilir ve aseton buharıyla parlatılabilir.</p>
+          </div>
+          <button type="button" class="select-guide-mat px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-bold text-white shrink-0 self-start sm:self-auto" data-mat="abs">Bu Malzemeyi Seç</button>
+        </div>
+
+        <!-- ASA -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">ASA (Dış Ortam & UV Dirençli)</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">Güneş (UV) & Hava Şartları</span>
+              <span class="text-[10px] text-slate-400 font-mono">Max: 105°C</span>
+            </div>
+            <p class="text-xs text-slate-400">Güneş ışığına ve yağmura doğrudan maruz kalan dış mekan parçaları, tekne parçaları, drone gövdeleri ve bahçe ekipmanları için sararma veya gevrekleşme yapmaz.</p>
+          </div>
+          <button type="button" class="select-guide-mat px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-bold text-white shrink-0 self-start sm:self-auto" data-mat="asa">Bu Malzemeyi Seç</button>
+        </div>
+
+        <!-- TPU -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">TPU Esnek (Kauçuk)</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-semibold">Kırılmaz Esnek</span>
+              <span class="text-[10px] text-slate-400 font-mono">Shore 95A</span>
+            </div>
+            <p class="text-xs text-slate-400">Bükülebilir, darbeleri emen kauçuk benzeri elastik malzeme. Sızdırmazlık contaları, drone titreşim sönümleyicileri ve koruyucu kılıflar için vazgeçilmezdir.</p>
+          </div>
+          <button type="button" class="select-guide-mat px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-bold text-white shrink-0 self-start sm:self-auto" data-mat="tpu">Bu Malzemeyi Seç</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: 3D ÇİZİM & TASARIM DESTEĞİ ================= -->
+  <div id="designHelpModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 w-full max-w-lg space-y-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400 flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">3D Çizim & Tasarım Desteği</h3>
+            <p class="text-xs text-slate-400">Elinizde 3D dosya yoksa sıfırdan modelleyip basalım.</p>
+          </div>
+        </div>
+        <button id="closeDesignHelpBtn" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-300">
+        <p class="leading-relaxed">
+          Kırılmış bir plastik parçayı yenilemek, özel bir fikir üretmek veya yedek parça bastırmak istiyorsanız mühendislik ekibimiz çizim sürecini üstlenir:
+        </p>
+
+        <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">1</span>
+            <p><strong class="text-white">Fotoğraf & Ölçü İletin:</strong> Kırık parçanızın veya el çiziminizin fotoğrafını kumpas/cetvel ölçüleriyle birlikte gönderin.</p>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">2</span>
+            <p><strong class="text-white">CAD Modelleme:</strong> Mühendislerimiz parçayı profesyonel CAD yazılımında 3D katı model haline getirsin.</p>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">3</span>
+            <p><strong class="text-white">Hızlı Baskı & Kargo:</strong> Onayınızın ardından istediğiniz malzemede basıp adresinize kargolayalım.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 space-y-2">
+        <a id="whatsappDesignBtn" href="#" target="_blank" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>WhatsApp ile Parça Fotoğrafı & Detay Gönder</span>
+        </a>
+        <button id="cancelDesignBtn" type="button" class="w-full py-2.5 text-xs text-slate-400 hover:text-white transition-colors">Vazgeç</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= FLOATING WHATSAPP BUTTON ================= -->
   <a href="https://wa.me/905000000000?text=Merhaba,%20ist3Dye.com%20üzerinden%20ulaşıyorum.%203D%20baskı%20teklifi%20almak%20istiyorum." 

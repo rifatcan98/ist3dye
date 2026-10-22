@@ -19,13 +19,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : DEFAULT_CONFIG;
   }
 
-  // Material densities (g/cm³) for precise gram calculation
+  // Material densities (g/cm³) for accurate weight calculation
   const MATERIAL_DENSITIES = {
     'pla': 1.24,
     'petg': 1.27,
     'abs': 1.04,
     'asa': 1.07,
     'tpu': 1.21
+  };
+
+  const MATERIAL_BRIEFS = {
+    'pla': 'Ekonomik, prototip ve dekoratif parçalar için ideal (Isı: 55°C).',
+    'petg': 'Yüksek darbe direnci, kimyasal ve dış ortam dayanımı (Isı: 75°C).',
+    'abs': 'Sıcaklığa ve sürtünmeye dayanıklı endüstriyel mühendislik (Isı: 100°C).',
+    'asa': 'Güneş (UV), yağmur ve hava şartlarına ultra dayanıklı (Isı: 105°C).',
+    'tpu': 'Bükülebilir, kırılmaz elastik kauçuk benzeri malzeme (Shore 95A).'
   };
 
   // ================= STATE & CONFIG =================
@@ -37,16 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
     z: 18,
     triangles: 1440,
     format: 'DEMO',
+    scale: 1.0,
     isOversize: false,
     hasFile: false
   };
 
   let selectedInfill = 20; // default 20%
+  let selectedSpeed = 'standard'; // 'standard' or 'express'
 
   // ================= ELEMENTS =================
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
   const loadDemoBtn = document.getElementById('loadDemoBtn');
+  const noModelHelpBtn = document.getElementById('noModelHelpBtn');
   const resetCameraBtn = document.getElementById('resetCameraBtn');
   const wireframeToggleBtn = document.getElementById('wireframeToggleBtn');
 
@@ -57,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const decreaseQty = document.getElementById('decreaseQty');
   const increaseQty = document.getElementById('increaseQty');
   const userNote = document.getElementById('userNote');
+  const ndaCheckbox = document.getElementById('ndaCheckbox');
 
   // Live Analysis Elements
   const calculatedPriceEl = document.getElementById('calculatedPrice');
@@ -68,76 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const modelStatusText = document.getElementById('modelStatusText');
   const modelFormatBadge = document.getElementById('modelFormatBadge');
   const oversizeWarning = document.getElementById('oversizeWarning');
+  const selectedMaterialBrief = document.getElementById('selectedMaterialBrief');
 
   const infillLabel = document.getElementById('infillLabel');
   const infillBtns = document.querySelectorAll('.infill-btn');
+  const speedBtns = document.querySelectorAll('.speed-btn');
+  const matPills = document.querySelectorAll('.mat-pill');
 
   const sendWhatsAppBtn = document.getElementById('sendWhatsAppBtn');
   const openEmailModalBtn = document.getElementById('openEmailModalBtn');
 
+  // Modals
+  const materialGuideModal = document.getElementById('materialGuideModal');
+  const openMaterialGuideBtn = document.getElementById('openMaterialGuideBtn');
+  const closeMaterialGuideBtn = document.getElementById('closeMaterialGuideBtn');
+
+  const designHelpModal = document.getElementById('designHelpModal');
+  const closeDesignHelpBtn = document.getElementById('closeDesignHelpBtn');
+  const cancelDesignBtn = document.getElementById('cancelDesignBtn');
+  const whatsappDesignBtn = document.getElementById('whatsappDesignBtn');
+
   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
-
-  // Load Custom Materials from Admin if configured
-  function populateMaterialsFromStorage() {
-    const saved = localStorage.getItem('ist3dye_materials');
-    if (!saved) return;
-    try {
-      const mats = JSON.parse(saved);
-      if (mats && mats.length > 0) {
-        materialSelect.innerHTML = '';
-        mats.forEach((m, idx) => {
-          const opt = document.createElement('option');
-          opt.value = m.id || m.name.toLowerCase();
-          opt.setAttribute('data-rate', m.rate);
-          opt.textContent = `${m.name} (${m.desc})`;
-          if (idx === 0) opt.selected = true;
-          materialSelect.appendChild(opt);
-        });
-      }
-    } catch (e) {
-      console.error('Malzemeler okunamadı:', e);
-    }
-  }
-
-  // Load Custom Gallery Items from Admin if configured
-  function populateGalleryFromStorage() {
-    const saved = localStorage.getItem('ist3dye_gallery');
-    if (!saved) return;
-    try {
-      const items = JSON.parse(saved);
-      const grid = document.getElementById('galleryGrid');
-      if (grid && items && items.length > 0) {
-        grid.innerHTML = '';
-        items.forEach(item => {
-          const div = document.createElement('div');
-          div.className = 'gallery-item group relative rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden hover:border-brand-500/50 transition-all duration-300';
-          div.setAttribute('data-category', item.category);
-          div.innerHTML = `
-            <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
-              <i data-lucide="box" class="w-24 h-24 text-brand-500/80 group-hover:scale-110 transition-transform duration-500"></i>
-              <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700 capitalize">${item.category}</span>
-              <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">${item.material}</span>
-            </div>
-            <div class="p-6 space-y-2">
-              <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">${item.title}</h4>
-              <p class="text-xs text-slate-400 leading-relaxed">${item.desc}</p>
-              <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
-                <span>${item.specs}</span>
-              </div>
-            </div>
-          `;
-          grid.appendChild(div);
-        });
-        lucide.createIcons();
-      }
-    } catch (e) {
-      console.error('Galeri okunamadı:', e);
-    }
-  }
-
-  populateMaterialsFromStorage();
-  populateGalleryFromStorage();
 
   // ================= PRICE & WEIGHT CALCULATION =================
   function calculatePrice() {
@@ -165,16 +129,18 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (qualityVal === 0.20) qualityMultiplier = 1.0;
     else if (qualityVal === 0.12) qualityMultiplier = 1.45;
 
+    // Hız / Ekspres Teslimat katsayısı
+    const speedMultiplier = (selectedSpeed === 'express') ? 1.25 : 1.0;
+
     // Adet
     const qty = Math.max(1, parseInt(qtyInput.value) || 1);
 
-    // Gerçekçi Gramaj Hesabı:
-    // Dış kabuklar (perimeters) ve taban/tavan katı kısımlar ~%25 pay alır, kalan %75 infill oranına göre ölçeklenir
+    // Gerçekçi Gramaj Hesabı
     const infillRatio = 0.25 + (selectedInfill / 100) * 0.75;
     const rawGrams = currentModel.volumeCm3 * density * infillRatio;
     const estimatedGrams = Math.max(5, Math.round(rawGrams));
 
-    // Baskı Süresi Tahmini:
+    // Baskı Süresi Hesabı
     let speedPerHour = 22;
     if (qualityVal >= 0.28) speedPerHour = 32;
     else if (qualityVal <= 0.12) speedPerHour = 14;
@@ -203,8 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
       weightText = `~${estimatedGrams} gr`;
     }
 
-    // Birim Fiyat
-    let unitPrice = baseSetupFee + (estimatedGrams * baseGramPrice * materialMultiplier * qualityMultiplier * infillMultiplier);
+    // Birim Fiyat (Hız farkı dahil)
+    let unitPrice = (baseSetupFee + (estimatedGrams * baseGramPrice * materialMultiplier * qualityMultiplier * infillMultiplier)) * speedMultiplier;
     unitPrice = Math.max(cfg.minOrderPrice || 65, Math.round(unitPrice));
 
     // Adet İndirimi
@@ -233,13 +199,15 @@ document.addEventListener('DOMContentLoaded', () => {
       modelStatusText.textContent = currentModel.name;
     }
     if (modelFormatBadge) {
-      modelFormatBadge.textContent = currentModel.format;
+      modelFormatBadge.textContent = currentModel.scale !== 1.0 
+        ? `${currentModel.format} (%${Math.round(currentModel.scale * 100)})` 
+        : currentModel.format;
       modelFormatBadge.className = currentModel.hasFile
         ? 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold shrink-0'
         : 'text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono shrink-0';
     }
 
-    // Oversize Warning Banner
+    // Oversize Warning
     if (oversizeWarning) {
       if (currentModel.isOversize) {
         oversizeWarning.classList.remove('hidden');
@@ -265,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentModel.triangles = data.triangles || currentModel.triangles;
       currentModel.format = data.format || 'STL';
       currentModel.isOversize = !!data.isOversize;
+      currentModel.scale = data.scale || 1.0;
       currentModel.hasFile = true;
     }
     calculatePrice();
@@ -289,8 +258,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ================= FORM EVENTS =================
-  materialSelect?.addEventListener('change', calculatePrice);
+  // ================= INTERACTIVE MATERIAL SELECTION =================
+  function selectMaterial(matKey) {
+    if (!materialSelect) return;
+    materialSelect.value = matKey;
+
+    matPills.forEach(pill => {
+      const pKey = pill.getAttribute('data-mat');
+      if (pKey === matKey) {
+        pill.classList.add('border-2', 'border-brand-500', 'bg-brand-500/10', 'active');
+        pill.classList.remove('border-slate-700', 'bg-slate-950');
+        const span = pill.querySelector('span');
+        if (span) { span.classList.add('text-white'); span.classList.remove('text-slate-300'); }
+      } else {
+        pill.classList.remove('border-2', 'border-brand-500', 'bg-brand-500/10', 'active');
+        pill.classList.add('border-slate-700', 'bg-slate-950');
+        const span = pill.querySelector('span');
+        if (span) { span.classList.remove('text-white'); span.classList.add('text-slate-300'); }
+      }
+    });
+
+    if (selectedMaterialBrief) {
+      selectedMaterialBrief.textContent = MATERIAL_BRIEFS[matKey] || 'Seçilen teknik malzeme.';
+    }
+
+    calculatePrice();
+  }
+
+  matPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const matKey = pill.getAttribute('data-mat');
+      selectMaterial(matKey);
+    });
+  });
+
+  materialSelect?.addEventListener('change', () => {
+    selectMaterial(materialSelect.value);
+  });
+
   qualitySelect?.addEventListener('change', calculatePrice);
 
   // Infill Button Group
@@ -316,6 +321,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Production Speed Selection (Standard vs Express)
+  speedBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      speedBtns.forEach(b => {
+        b.classList.remove('border-2', 'border-brand-500', 'border-amber-500', 'bg-brand-500/10', 'bg-amber-500/10', 'active');
+        b.classList.add('border-slate-700', 'bg-slate-950');
+      });
+
+      selectedSpeed = btn.getAttribute('data-speed');
+      if (selectedSpeed === 'express') {
+        btn.classList.add('border-2', 'border-amber-500', 'bg-amber-500/10', 'active');
+      } else {
+        btn.classList.add('border-2', 'border-brand-500', 'bg-brand-500/10', 'active');
+      }
+      btn.classList.remove('border-slate-700', 'bg-slate-950');
+
+      calculatePrice();
+    });
+  });
+
   // Quantity Counter
   decreaseQty?.addEventListener('click', () => {
     let val = parseInt(qtyInput.value) || 1;
@@ -332,10 +357,41 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   qtyInput?.addEventListener('input', calculatePrice);
+  ndaCheckbox?.addEventListener('change', calculatePrice);
+
+  // ================= MODEL SCALING & UNIT CONVERSIONS =================
+  document.querySelectorAll('.scale-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.scale-btn').forEach(b => {
+        b.classList.remove('bg-brand-600', 'text-white', 'active', 'font-bold');
+        b.classList.add('text-slate-400');
+      });
+      btn.classList.add('bg-brand-600', 'text-white', 'active', 'font-bold');
+      btn.classList.remove('text-slate-400');
+
+      const scale = parseFloat(btn.getAttribute('data-scale') || '1.0');
+      if (window.viewer3DInstance) {
+        window.viewer3DInstance.setScale(scale);
+      }
+    });
+  });
+
+  document.getElementById('unitConvertInchBtn')?.addEventListener('click', () => {
+    if (window.viewer3DInstance) {
+      window.viewer3DInstance.convertUnit(25.4);
+    }
+  });
+
+  document.getElementById('unitConvertCmBtn')?.addEventListener('click', () => {
+    if (window.viewer3DInstance) {
+      window.viewer3DInstance.convertUnit(10.0);
+    }
+  });
 
   // ================= FILE UPLOAD & DROPZONE =================
   dropZone?.addEventListener('click', (e) => {
-    if (e.target !== loadDemoBtn && !loadDemoBtn.contains(e.target)) {
+    if (e.target !== loadDemoBtn && !loadDemoBtn?.contains(e.target) &&
+        e.target !== noModelHelpBtn && !noModelHelpBtn?.contains(e.target)) {
       fileInput.click();
     }
   });
@@ -400,6 +456,52 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.viewer3DInstance) window.viewer3DInstance.toggleWireframe();
   });
 
+  // ================= MODAL: 3D ÇİZİM & TASARIM DESTEĞİ =================
+  noModelHelpBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const cfg = getSiteConfig();
+    const designMsg = encodeURIComponent("Merhaba, elimde hazır 3D model dosyası veya teknik çizim yok. Bir parçamın 3D modellenmesi ve baskısı için tasarım desteği almak istiyorum.");
+    if (whatsappDesignBtn) {
+      whatsappDesignBtn.href = `https://wa.me/${cfg.whatsappPhone || '905000000000'}?text=${designMsg}`;
+    }
+    designHelpModal?.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  });
+
+  closeDesignHelpBtn?.addEventListener('click', () => {
+    designHelpModal?.classList.add('hidden');
+  });
+  cancelDesignBtn?.addEventListener('click', () => {
+    designHelpModal?.classList.add('hidden');
+  });
+
+  // ================= MODAL: MALZEME REHBERİ =================
+  openMaterialGuideBtn?.addEventListener('click', () => {
+    materialGuideModal?.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  });
+
+  closeMaterialGuideBtn?.addEventListener('click', () => {
+    materialGuideModal?.classList.add('hidden');
+  });
+
+  document.querySelectorAll('.select-guide-mat').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mat = btn.getAttribute('data-mat');
+      selectMaterial(mat);
+      materialGuideModal?.classList.add('hidden');
+    });
+  });
+
+  // Close modals on backdrop click
+  [materialGuideModal, designHelpModal].forEach(modal => {
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  });
+
   // ================= WHATSAPP INTEGRATION =================
   sendWhatsAppBtn?.addEventListener('click', () => {
     const pricing = calculatePrice();
@@ -408,14 +510,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorText = colorSelect.value;
     const note = userNote.value.trim() ? userNote.value.trim() : 'Yok';
 
+    const speedText = (selectedSpeed === 'express') 
+      ? '⚡ 24 Saat Ekspres Baskı (Öncelikli Üretim)' 
+      : 'Standart Üretim (2-3 İş Günü)';
+
+    const scaleText = (currentModel.scale !== 1.0)
+      ? ` (%${Math.round(currentModel.scale * 100)} Ölçek)`
+      : '';
+
+    const ndaText = ndaCheckbox?.checked 
+      ? '\n🔒 *Kurumsal Talep:* Gizlilik Sözleşmesi (NDA) talep edilmektedir.'
+      : '';
+
     const oversizeNote = currentModel.isOversize 
-      ? `\n⚠️ *Not:* Model tek parça baskı alanını (340x320x340mm) aşıyor, parçalı üretim/montaj talep ediliyor.` 
+      ? '\n⚠️ *Ebat Uyarısı:* Parça tek parça baskı alanını (340x320x340mm) aşıyor, parçalı üretim/montaj önerisi isteniyor.' 
       : '';
 
     const message = 
 `*ist3Dye.com - 3D Baskı Fiyat Teklifi Talebi*
 ---------------------------------------
-📂 *Model / Dosya:* ${currentModel.name} (${currentModel.format})
+📂 *Model / Dosya:* ${currentModel.name} (${currentModel.format})${scaleText}
 📐 *Parça Ebatları:* ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
 ⚖️ *Tahmini Ağırlık:* ${pricing.weightText}
 ⏱️ *Baskı Süresi:* ${pricing.printTimeText}
@@ -423,8 +537,9 @@ document.addEventListener('DOMContentLoaded', () => {
 🎯 *Doluluk (Infill):* %${selectedInfill}
 📏 *Katman Kalitesi:* ${qualityText}
 🎨 *Renk:* ${colorText}
+🚀 *Üretim Hızı:* ${speedText}
 🔢 *Adet:* ${pricing.qty} adet
-📝 *Müşteri Notu:* ${note}${oversizeNote}
+📝 *Müşteri Notu:* ${note}${ndaText}${oversizeNote}
 ---------------------------------------
 💰 *Tahmini Toplam Tutar:* ${pricing.totalPrice.toLocaleString('tr-TR')} ₺
 ---------------------------------------
@@ -441,11 +556,13 @@ Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif 
     const contactSection = document.getElementById('iletisim');
     contactSection?.scrollIntoView({ behavior: 'smooth' });
     
-    // Auto populate message field with quote parameters
     const pricing = calculatePrice();
     const contactMsg = document.getElementById('contactMessage');
+    const speedText = (selectedSpeed === 'express') ? 'Ekspres (24s)' : 'Standart (2-3g)';
+    const ndaText = ndaCheckbox?.checked ? ' [NDA Talep Edildi]' : '';
+
     if (contactMsg) {
-      contactMsg.value = `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ${pricing.weightText} | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Renk: ${colorSelect.value} | Adet: ${pricing.qty} | Tahmini Tutar: ${pricing.totalPrice} TL`;
+      contactMsg.value = `Model: ${currentModel.name} (${currentModel.format}) | Ebat: ${currentModel.x}x${currentModel.y}x${currentModel.z} mm | Ağırlık: ${pricing.weightText} | Süre: ${pricing.printTimeText} | Malzeme: ${materialSelect.value.toUpperCase()} | Doluluk: %${selectedInfill} | Hız: ${speedText} | Adet: ${pricing.qty} | Tutar: ${pricing.totalPrice} TL${ndaText}`;
     }
   });
 
@@ -470,7 +587,8 @@ Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif 
     const hiddenQuantity = document.getElementById('hiddenQty');
     const hiddenPr = document.getElementById('hiddenPrice');
 
-    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ${pricing.weightText})` : 'Model yüklenmedi';
+    const ndaText = ndaCheckbox?.checked ? ' [NDA Talep Edildi]' : '';
+    if (hiddenModel) hiddenModel.value = currentModel.hasFile ? `${currentModel.name} (${currentModel.x}x${currentModel.y}x${currentModel.z}mm, ${pricing.weightText})${ndaText}` : 'Model yüklenmedi';
     if (hiddenMat) hiddenMat.value = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
     if (hiddenInf) hiddenInf.value = `%${selectedInfill}`;
     if (hiddenQual) hiddenQual.value = qualitySelect.options[qualitySelect.selectedIndex].text;
@@ -513,7 +631,6 @@ Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif 
     questionBtn?.addEventListener('click', () => {
       const isOpen = !answer.classList.contains('hidden');
       
-      // Close all
       document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
       document.querySelectorAll('.faq-question i').forEach(c => c.style.transform = 'rotate(0deg)');
 
@@ -529,6 +646,7 @@ Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif 
     mobileMenu.classList.toggle('hidden');
   });
 
-  // Initial price calculation
+  // Initial setup
+  selectMaterial('pla');
   calculatePrice();
 });
