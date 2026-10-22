@@ -1002,6 +1002,36 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
     mobileMenu.classList.toggle('hidden');
   });
 
+  // ================= SCROLL TO TOP BUTTON =================
+  const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+  if (scrollToTopBtn) {
+    let isVisible = false;
+
+    const handleScroll = () => {
+      const shouldShow = window.scrollY > 300;
+      if (shouldShow !== isVisible) {
+        isVisible = shouldShow;
+        if (isVisible) {
+          scrollToTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+          scrollToTopBtn.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+        } else {
+          scrollToTopBtn.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+          scrollToTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    scrollToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
   // Initial setup
   selectMaterial(materialSelect && materialSelect.value ? materialSelect.value : 'pla');
   calculatePrice();
