@@ -1,3 +1,12 @@
+// HTML kacis (XSS koruması): kullanıcı/admin verisini innerHTML'e basmadan once temizler
+function escapeHtml(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 // Admin Panel Logic for ist3Dye.com
 
 // ================= DEFAULT DATA =================
@@ -293,9 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const tr = document.createElement('tr');
       tr.className = 'hover:bg-slate-950/60 transition-colors';
       tr.innerHTML = `
-        <td class="px-4 py-3 font-semibold text-white">${mat.name}</td>
-        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-400 font-mono font-bold">${mat.rate}x</span></td>
-        <td class="px-4 py-3 text-slate-400">${mat.desc}</td>
+        <td class="px-4 py-3 font-semibold text-white">${escapeHtml(mat.name)}</td>
+        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-400 font-mono font-bold">${escapeHtml(mat.rate)}x</span></td>
+        <td class="px-4 py-3 text-slate-400">${escapeHtml(mat.desc)}</td>
         <td class="px-4 py-3 text-right">
           <button class="delete-mat-btn text-red-400 hover:text-red-300 p-1.5 rounded bg-red-500/10 hover:bg-red-500/20" data-idx="${idx}">
             Sil
@@ -361,16 +370,16 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = 'p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 relative group';
       card.innerHTML = `
         <div class="flex items-center justify-between">
-          <span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-medium capitalize">${item.category}</span>
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-medium capitalize">${escapeHtml(item.category)}</span>
           <button class="delete-gal-btn text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded bg-red-500/10" data-idx="${idx}">
             Sil
           </button>
         </div>
-        <h4 class="text-sm font-bold text-white">${item.title}</h4>
-        <p class="text-xs text-slate-400 line-clamp-2">${item.desc}</p>
+        <h4 class="text-sm font-bold text-white">${escapeHtml(item.title)}</h4>
+        <p class="text-xs text-slate-400 line-clamp-2">${escapeHtml(item.desc)}</p>
         <div class="text-[11px] text-slate-500 border-t border-slate-800 pt-2 space-y-1">
-          <p class="text-emerald-400 font-mono">${item.material}</p>
-          <p>${item.specs}</p>
+          <p class="text-emerald-400 font-mono">${escapeHtml(item.material)}</p>
+          <p>${escapeHtml(item.specs)}</p>
         </div>
       `;
       grid.appendChild(card);

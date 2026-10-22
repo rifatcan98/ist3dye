@@ -1,3 +1,12 @@
+// HTML kacis (XSS koruması): kullanıcı/admin verisini innerHTML'e basmadan once temizler
+function escapeHtml(value) {
+  return String(value === undefined || value === null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 // Main Application Logic for ist3Dye.com
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -141,14 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
           div.innerHTML = `
             <div class="relative h-64 bg-slate-900 overflow-hidden flex items-center justify-center p-6">
               <i data-lucide="box" class="w-24 h-24 text-brand-500/80 group-hover:scale-110 transition-transform duration-500"></i>
-              <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700 capitalize">${item.category}</span>
-              <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">${item.material}</span>
+              <span class="absolute top-4 left-4 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur text-[11px] font-semibold text-brand-400 border border-slate-700 capitalize">${escapeHtml(item.category)}</span>
+              <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">${escapeHtml(item.material)}</span>
             </div>
             <div class="p-6 space-y-2">
-              <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">${item.title}</h4>
-              <p class="text-xs text-slate-400 leading-relaxed">${item.desc}</p>
+              <h4 class="text-lg font-bold text-white group-hover:text-brand-400 transition-colors">${escapeHtml(item.title)}</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">${escapeHtml(item.desc)}</p>
               <div class="pt-3 flex items-center justify-between text-xs text-slate-500 border-t border-slate-800">
-                <span>${item.specs}</span>
+                <span>${escapeHtml(item.specs)}</span>
               </div>
             </div>
           `;

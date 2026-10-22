@@ -3,3 +3,8 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
+  Content-Security-Policy: object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self' https://formsubmit.co
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+/admin.html
+  X-Robots-Tag: noindex, nofollow, noarchive
