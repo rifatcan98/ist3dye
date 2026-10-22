@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const infillLabel = document.getElementById('infillLabel');
   const infillBtns = document.querySelectorAll('.infill-btn');
+  const infillSlider = document.getElementById('infillSlider');
   const speedBtns = document.querySelectorAll('.speed-btn');
   const matPills = document.querySelectorAll('.mat-pill');
 
@@ -318,6 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (selectedInfill === 20) infillMultiplier = 1.0;
     else if (selectedInfill === 40) infillMultiplier = 1.05;
     else if (selectedInfill === 100) infillMultiplier = 1.15;
+    else {
+      // Dinamik interpolasyon (%5 -> 0.95, %20 -> 1.0, %40 -> 1.05, %100 -> 1.15)
+      infillMultiplier = 0.95 + (selectedInfill / 100) * 0.20;
+    }
 
     // Katman kalitesi katsayısı
     const qualityVal = parseFloat(qualitySelect.value || 0.20);
@@ -494,27 +499,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
   qualitySelect?.addEventListener('change', calculatePrice);
 
-  // Infill Button Group
+  // ================= INFILL SELECTION & RANGE SLIDER =================
+  function updateInfillUI(val) {
+    selectedInfill = Math.min(100, Math.max(5, parseInt(val) || 20));
+
+    // 1. Update Range Slider & Gradient Fill Track
+    if (infillSlider) {
+      infillSlider.value = selectedInfill;
+      const fillPercent = ((selectedInfill - 5) / (100 - 5)) * 100;
+      infillSlider.style.background = `linear-gradient(to right, #06b6d4 0%, #2563eb ${fillPercent}%, #1e293b ${fillPercent}%, #1e293b 100%)`;
+    }
+
+    // 2. Update Preset Buttons state
+    infillBtns.forEach(b => {
+      const btnVal = parseInt(b.getAttribute('data-infill'));
+      const spanText = b.querySelector('span');
+      if (btnVal === selectedInfill) {
+        b.classList.remove('border-slate-700', 'bg-slate-950', 'text-slate-300');
+        b.classList.add('border-2', 'border-cyan-500', 'bg-cyan-500/10', 'font-bold', 'text-white');
+        if (spanText) {
+          spanText.classList.remove('text-slate-500');
+          spanText.classList.add('text-cyan-300');
+        }
+      } else {
+        b.classList.remove('border-2', 'border-cyan-500', 'border-brand-500', 'bg-cyan-500/10', 'bg-brand-500/10', 'font-bold', 'text-white');
+        b.classList.add('border-slate-700', 'bg-slate-950', 'text-slate-300');
+        if (spanText) {
+          spanText.classList.remove('text-cyan-300', 'text-brand-300');
+          spanText.classList.add('text-slate-500');
+        }
+      }
+    });
+
+    // 3. Update Label Description
+    let desc = 'Özel Doluluk';
+    if (selectedInfill <= 15) {
+      desc = selectedInfill === 15 ? 'Hafif / Dekoratif' : 'Ekstra Hafif';
+    } else if (selectedInfill <= 25) {
+      desc = selectedInfill === 20 ? 'Standart Parça' : 'Dengeli Parça';
+    } else if (selectedInfill <= 45) {
+      desc = selectedInfill === 40 ? 'Sağlam / Mekanik' : 'Güçlendirilmiş Parça';
+    } else if (selectedInfill < 100) {
+      desc = 'Ağır Hizmet Parçası';
+    } else {
+      desc = 'Masif (%100 Dolu)';
+    }
+
+    if (infillLabel) {
+      infillLabel.textContent = `%${selectedInfill} (${desc})`;
+    }
+
+    calculatePrice();
+  }
+
+  // Preset Buttons Click Event
   infillBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      infillBtns.forEach(b => {
-        b.classList.remove('border-2', 'border-brand-500', 'bg-brand-500/10', 'font-bold', 'text-white');
-        b.classList.add('border-slate-700', 'bg-slate-950', 'text-slate-300');
-      });
-      btn.classList.add('border-2', 'border-brand-500', 'bg-brand-500/10', 'font-bold', 'text-white');
-      btn.classList.remove('border-slate-700', 'bg-slate-950', 'text-slate-300');
-
-      selectedInfill = parseInt(btn.getAttribute('data-infill'));
-      
-      const infillDescriptions = {
-        15: '%15 (Hafif / Dekoratif)',
-        20: '%20 (Standart Parça)',
-        40: '%40 (Yüksek Mukavemet)',
-        100: '%100 (Masif / Endüstriyel)'
-      };
-      if (infillLabel) infillLabel.textContent = infillDescriptions[selectedInfill] || `%${selectedInfill}`;
-      calculatePrice();
+      const val = parseInt(btn.getAttribute('data-infill'));
+      updateInfillUI(val);
     });
+  });
+
+  // Range Slider Input Event (fires smoothly while dragging)
+  infillSlider?.addEventListener('input', (e) => {
+    updateInfillUI(e.target.value);
   });
 
   // Production Speed Selection (Standard vs Express)
@@ -1083,5 +1131,6 @@ Tahmini Tutar: ${pricing.totalPrice} TL`
 
   // Initial setup
   selectMaterial(materialSelect && materialSelect.value ? materialSelect.value : 'pla');
+  updateInfillUI(20);
   calculatePrice();
 });

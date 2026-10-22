@@ -533,24 +533,50 @@
               </div>
 
               <!-- 2. Doluluk Oranı (Infill) -->
-              <div>
-                <div class="flex justify-between items-center mb-2">
-                  <label class="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              <div class="space-y-2.5">
+                <div class="flex justify-between items-center">
+                  <label for="infillSlider" class="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                     2. İç Doluluk Oranı (Infill)
                   </label>
-                  <span id="infillLabel" class="text-xs font-bold text-brand-400">%20 (Standart Parça)</span>
+                  <span id="infillLabel" class="text-xs font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-lg font-mono">
+                    %20 (Standart Parça)
+                  </span>
                 </div>
+
+                <!-- Range Slider Bar -->
+                <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div class="flex items-center gap-3">
+                    <span class="text-[11px] font-mono text-slate-400 font-semibold shrink-0">%5</span>
+                    <input type="range" 
+                           id="infillSlider" 
+                           min="5" 
+                           max="100" 
+                           step="1" 
+                           value="20" 
+                           class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
+                           aria-label="Özel İç Doluluk Oranı Kaydırıcısı">
+                    <span class="text-[11px] font-mono text-slate-400 font-semibold shrink-0">%100</span>
+                  </div>
+                  <div class="flex justify-between text-[10px] text-slate-500 px-0.5 font-medium">
+                    <span>Hafif (%5-%15)</span>
+                    <span>Standart (%20)</span>
+                    <span>Sağlam (%40)</span>
+                    <span>Masif (%100)</span>
+                  </div>
+                </div>
+
+                <!-- Preset Quick Buttons -->
                 <div class="grid grid-cols-4 gap-2">
-                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-brand-500 transition-all text-slate-300" data-infill="15">
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-cyan-500 transition-all text-slate-300" data-infill="15">
                     %15 <span class="block text-[10px] text-slate-500">Hafif</span>
                   </button>
-                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border-2 border-brand-500 bg-brand-500/10 text-xs font-bold text-white transition-all" data-infill="20">
-                    %20 <span class="block text-[10px] text-brand-300">Standart</span>
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border-2 border-cyan-500 bg-cyan-500/10 text-xs font-bold text-white transition-all" data-infill="20">
+                    %20 <span class="block text-[10px] text-cyan-300">Standart</span>
                   </button>
-                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-brand-500 transition-all text-slate-300" data-infill="40">
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-cyan-500 transition-all text-slate-300" data-infill="40">
                     %40 <span class="block text-[10px] text-slate-500">Sağlam</span>
                   </button>
-                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-brand-500 transition-all text-slate-300" data-infill="100">
+                  <button type="button" class="infill-btn py-2 px-3 rounded-xl border border-slate-700 bg-slate-950 text-xs font-medium hover:border-cyan-500 transition-all text-slate-300" data-infill="100">
                     %100 <span class="block text-[10px] text-slate-500">Masif</span>
                   </button>
                 </div>
