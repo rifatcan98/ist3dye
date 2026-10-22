@@ -510,42 +510,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const materialName = materialSelect.options[materialSelect.selectedIndex].text.split('(')[0].trim();
     const qualityText = qualitySelect.options[qualitySelect.selectedIndex].text;
     const colorText = colorSelect.value;
-    const note = userNote.value.trim() ? userNote.value.trim() : 'Yok';
+    const note = userNote.value.trim();
 
     const speedText = (selectedSpeed === 'express') 
-      ? '⚡ 24 Saat Ekspres Baskı (Öncelikli Üretim)' 
+      ? '⚡ 24 Saat Ekspres Baskı (+%25 Öncelikli)' 
       : 'Standart Üretim (2-3 İş Günü)';
 
     const scaleText = (currentModel.scale !== 1.0)
       ? ` (%${Math.round(currentModel.scale * 100)} Ölçek)`
       : '';
 
-    const ndaText = ndaCheckbox?.checked 
-      ? '\n🔒 *Kurumsal Talep:* Gizlilik Sözleşmesi (NDA) talep edilmektedir.'
-      : '';
+    // Dynamic notes & requests block
+    const notesList = [];
+    if (note) {
+      notesList.push(`• *Müşteri Notu:* ${note}`);
+    }
+    if (ndaCheckbox?.checked) {
+      notesList.push('• *Kurumsal Gizlilik (NDA):* Gizlilik Sözleşmesi Talep Edilmektedir 🔒');
+    }
+    if (currentModel.isOversize) {
+      notesList.push('• *Ebat Bildirimi:* Parça 340×320×340 mm alanını aşıyor, parçalı üretim/montaj önerisi isteniyor ⚠️');
+    }
 
-    const oversizeNote = currentModel.isOversize 
-      ? '\n⚠️ *Ebat Uyarısı:* Parça tek parça baskı alanını (340x320x340mm) aşıyor, parçalı üretim/montaj önerisi isteniyor.' 
-      : '';
+    let notesSection = '';
+    if (notesList.length > 0) {
+      notesSection = `\n📝 *ÖZEL TALEPLER & NOTLAR*\n${notesList.join('\n')}\n`;
+    }
 
     const message = 
-`*ist3Dye.com - 3D Baskı Fiyat Teklifi Talebi*
----------------------------------------
-📂 *Model / Dosya:* ${currentModel.name} (${currentModel.format})${scaleText}
-📐 *Parça Ebatları:* ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
-⚖️ *Tahmini Ağırlık:* ${pricing.weightText}
-⏱️ *Baskı Süresi:* ${pricing.printTimeText}
-⚙️ *Malzeme:* ${materialName}
-🎯 *Doluluk (Infill):* %${selectedInfill}
-📏 *Katman Kalitesi:* ${qualityText}
-🎨 *Renk:* ${colorText}
-🚀 *Üretim Hızı:* ${speedText}
-🔢 *Adet:* ${pricing.qty} adet
-📝 *Müşteri Notu:* ${note}${ndaText}${oversizeNote}
----------------------------------------
-💰 *Tahmini Toplam Tutar:* ${pricing.totalPrice.toLocaleString('tr-TR')} TL
----------------------------------------
-Merhaba, yukarıdaki teknik parametrelerde 3D baskı yaptırmak ve kesin teklif almak istiyorum. Dosyamı göndermek üzere bilgi verir misiniz?`;
+`🖨️ *ist3Dye.com | 3D Baskı Teklif Talebi*
+────────────────────────────
+
+📦 *MODEL BİLGİLERİ*
+• *Dosya:* ${currentModel.name} (${currentModel.format})${scaleText}
+• *Boyutlar:* ${currentModel.x} × ${currentModel.y} × ${currentModel.z} mm
+• *Ağırlık & Süre:* ${pricing.weightText} | ${pricing.printTimeText}
+
+⚙️ *ÜRETİM PARAMETRELERİ*
+• *Malzeme:* ${materialName}
+• *Renk:* ${colorText}
+• *İç Doluluk:* %${selectedInfill}
+• *Katman:* ${qualityText}
+• *Üretim Hızı:* ${speedText}
+• *Sipariş Adedi:* ${pricing.qty} Adet
+${notesSection}
+────────────────────────────
+💰 *TAHMİNİ TOPLAM: ${pricing.totalPrice.toLocaleString('tr-TR')} TL*
+_(+KDV / Kargo Hariç)_
+────────────────────────────
+
+👋 *Merhaba,* web siteniz üzerinden aldığım bu ön teklif için 3D dosyamı iletmek ve kesin sipariş/üretim onayı almak istiyorum. Yardımcı olabilir misiniz?`;
 
     const cfg = getSiteConfig();
     const encoded = encodeURIComponent(message);
