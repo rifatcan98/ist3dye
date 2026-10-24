@@ -350,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (qualityVal === 0.28) qualityMultiplier = 0.88;
     else if (qualityVal === 0.20) qualityMultiplier = 1.0;
     else if (qualityVal === 0.12) qualityMultiplier = 1.45;
+    else if (qualityVal === 0.08) qualityMultiplier = 1.85;
 
     // Hız / Ekspres Teslimat katsayısı
     const speedMultiplier = (selectedSpeed === 'express') ? 1.25 : 1.0;
@@ -469,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'Kırmızı': 0xef4444,
     'Mavi': 0x3b82f6,
     'Turuncu': 0xf97316,
+    'Çok Renkli (AMS 2 Pro)': 0x06b6d4,
     'Özel': 0x06b6d4
   };
 
